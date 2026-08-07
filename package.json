@@ -1,0 +1,80 @@
+{
+  "name": "pedidos-delivery-backend",
+  "version": "0.1.0",
+  "description": "Backend API para sistema de pedidos delivery con Clean Architecture",
+  "main": "dist/main/server.js",
+  "scripts": {
+    "setup": "node bin/setup.mjs",
+    "dev": "tsx watch -r tsconfig-paths/register src/main/server.ts",
+    "build": "tsc && tsc-alias",
+    "start": "node dist/main/server.js",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix",
+    "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\"",
+    "test": "jest --passWithNoTests",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:e2e": "jest --config jest.e2e.config.ts",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:deploy": "prisma migrate deploy",
+    "prisma:studio": "prisma studio",
+    "prisma:seed": "ts-node --project tsconfig.seed.json prisma/seed.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "prisma": {
+    "seed": "ts-node --project tsconfig.seed.json prisma/seed.ts"
+  },
+  "keywords": ["clean-architecture", "express", "typescript", "prisma", "postgresql"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^5.2.1",
+    "helmet": "^8.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "pino": "^9.5.0",
+    "pino-http": "^10.3.0",
+    "pino-pretty": "^11.3.0",
+    "reflect-metadata": "^0.2.2",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
+    "tsyringe": "^4.8.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/jest": "^29.5.14",
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/node": "^22.9.0",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.7",
+    "@types/supertest": "^6.0.2",
+    "@typescript-eslint/eslint-plugin": "^8.13.0",
+    "@typescript-eslint/parser": "^8.13.0",
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^9.1.0",
+    "jest": "^29.7.0",
+    "prettier": "^3.3.3",
+    "prisma": "^5.22.0",
+    "supertest": "^7.0.0",
+    "ts-jest": "^29.2.5",
+    "ts-node": "^10.9.2",
+    "tsc-alias": "^1.8.10",
+    "tsconfig-paths": "^4.2.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  },
+  "overrides": {
+    "brace-expansion": "^1.1.11",
+    "tar": "^7.4.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
