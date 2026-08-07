@@ -1,0 +1,72 @@
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: pedidos-api
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: ${PORT:-3000}
+      USE_LOCAL_DB: ${USE_LOCAL_DB:-false}
+      # En modo Local dentro de Docker, el host debe ser 'postgres' (no localhost)
+      DATABASE_URL: ${DATABASE_URL:-postgresql://postgres:postgres@postgres:5432/pedidos_delivery?schema=public}
+      DIRECT_URL: ${DIRECT_URL:-postgresql://postgres:postgres@postgres:5432/pedidos_delivery}
+      LOCAL_DATABASE_URL: ${LOCAL_DATABASE_URL:-postgresql://postgres:postgres@postgres:5432/pedidos_delivery?schema=public}
+      JWT_SECRET: ${JWT_SECRET:-change-this-super-secret-key-in-production}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      BCRYPT_SALT_ROUNDS: ${BCRYPT_SALT_ROUNDS:-10}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    depends_on:
+      postgres:
+        condition: service_healthy
+        required: false
+    networks:
+      - pedidos-network
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: pedidos-postgres
+    restart: unless-stopped
+    ports:
+      - '${POSTGRES_PORT:-5433}:5432'
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: pedidos_delivery
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d pedidos_delivery']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - pedidos-network
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pedidos-pgadmin
+    restart: unless-stopped
+    ports:
+      - '5050:80'
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_LISTEN_PORT: 80
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    networks:
+      - pedidos-network
+
+volumes:
+  pgdata:
+  pgadmin-data:
+
+networks:
+  pedidos-network:
+    driver: bridge

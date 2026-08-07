@@ -1,0 +1,47 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build
+dist/
+build/
+coverage/
+
+# Env
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# OS & Build Caches
+Thumbs.db
+Desktop.ini
+.eslintcache
+*.tsbuildinfo
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Prisma
+prisma/migrations/dev.db*
+
+# Testing
+coverage/
+.nyc_output/
+
+# Misc
+.cache/
+.tmp/

@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "./",
+    "noEmit": true
+  },
+  "include": [
+    "src/**/*",
+    "tests/**/*",
+    "jest.config.ts",
+    "jest.e2e.config.ts",
+    "prisma/seed.ts"
+  ],
+  "exclude": ["node_modules", "dist", "coverage"]
+}
