@@ -32,13 +32,25 @@ const swaggerOptions = {
       },
     ],
     components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+        },
+      },
       schemas: {
+        Role: {
+          type: 'string',
+          enum: ['ADMIN', 'CUSTOMER', 'DELIVERY', 'RESTAURANT'],
+        },
         User: {
           type: 'object',
           properties: {
             id: { type: 'string', format: 'uuid', example: '550e8400-e29b-41d4-a716-446655440000' },
             email: { type: 'string', format: 'email', example: 'juan@example.com' },
             name: { type: 'string', example: 'Juan Pérez' },
+            role: { $ref: '#/components/schemas/Role' },
             isActive: { type: 'boolean', example: true },
             createdAt: { type: 'string', format: 'date-time' },
             updatedAt: { type: 'string', format: 'date-time' },
@@ -51,6 +63,7 @@ const swaggerOptions = {
             email: { type: 'string', format: 'email' },
             name: { type: 'string', minLength: 2, maxLength: 100 },
             password: { type: 'string', minLength: 8, maxLength: 100 },
+            role: { $ref: '#/components/schemas/Role' },
           },
         },
         UpdateUserRequest: {
@@ -59,7 +72,43 @@ const swaggerOptions = {
             email: { type: 'string', format: 'email' },
             name: { type: 'string', minLength: 2, maxLength: 100 },
             password: { type: 'string', minLength: 8, maxLength: 100 },
+            role: { $ref: '#/components/schemas/Role' },
             isActive: { type: 'boolean' },
+          },
+        },
+        RegisterRequest: {
+          type: 'object',
+          required: ['email', 'name', 'password'],
+          properties: {
+            email: { type: 'string', format: 'email' },
+            name: { type: 'string', minLength: 2, maxLength: 100 },
+            password: { type: 'string', minLength: 8, maxLength: 100 },
+            role: {
+              type: 'string',
+              enum: ['CUSTOMER', 'DELIVERY', 'RESTAURANT'],
+              default: 'CUSTOMER',
+            },
+          },
+        },
+        LoginRequest: {
+          type: 'object',
+          required: ['email', 'password'],
+          properties: {
+            email: { type: 'string', format: 'email' },
+            password: { type: 'string' },
+          },
+        },
+        AuthResponse: {
+          type: 'object',
+          properties: {
+            success: { type: 'boolean', example: true },
+            data: {
+              type: 'object',
+              properties: {
+                token: { type: 'string' },
+                user: { $ref: '#/components/schemas/User' },
+              },
+            },
           },
         },
         SuccessResponse: {
@@ -84,6 +133,22 @@ const swaggerOptions = {
         },
       },
       responses: {
+        Unauthorized: {
+          description: 'No autenticado (token faltante o inválido)',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/ErrorResponse' },
+            },
+          },
+        },
+        Forbidden: {
+          description: 'Sin permisos suficientes para este recurso',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/ErrorResponse' },
+            },
+          },
+        },
         NotFound: {
           description: 'Recurso no encontrado',
           content: {
@@ -119,6 +184,10 @@ const swaggerOptions = {
       },
     },
     tags: [
+      {
+        name: 'Auth',
+        description: 'Registro y autenticación',
+      },
       {
         name: 'Users',
         description: 'Gestión de usuarios',

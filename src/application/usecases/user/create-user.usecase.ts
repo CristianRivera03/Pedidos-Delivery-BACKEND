@@ -39,6 +39,7 @@ export class CreateUserUseCase {
       email,
       name: dto.name.trim(),
       passwordHash,
+      role: dto.role ?? 'CUSTOMER',
       isActive: true,
       createdAt: now,
       updatedAt: now,

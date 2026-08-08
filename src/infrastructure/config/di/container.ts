@@ -5,6 +5,8 @@ import { DeleteUserUseCase } from '@application/usecases/user/delete-user.usecas
 import { GetUserUseCase } from '@application/usecases/user/get-user.usecase';
 import { ListUsersUseCase } from '@application/usecases/user/list-users.usecase';
 import { UpdateUserUseCase } from '@application/usecases/user/update-user.usecase';
+import { LoginUseCase } from '@application/usecases/auth/login.usecase';
+import { RegisterUseCase } from '@application/usecases/auth/register.usecase';
 
 import { PrismaClient } from '@infrastructure/database/prisma/prisma.client';
 import { UserPrismaRepository } from '@infrastructure/repositories/user.prisma.repository';
@@ -28,6 +30,8 @@ export function registerDependencies(): void {
   container.registerSingleton(USE_CASE_SYMBOLS.ListUsersUseCase, ListUsersUseCase);
   container.registerSingleton(USE_CASE_SYMBOLS.UpdateUserUseCase, UpdateUserUseCase);
   container.registerSingleton(USE_CASE_SYMBOLS.DeleteUserUseCase, DeleteUserUseCase);
+  container.registerSingleton(USE_CASE_SYMBOLS.LoginUseCase, LoginUseCase);
+  container.registerSingleton(USE_CASE_SYMBOLS.RegisterUseCase, RegisterUseCase);
 }
 
 export { container };

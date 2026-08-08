@@ -7,6 +7,7 @@ export class UserMapper {
       id: user.getId().getValue(),
       email: user.getEmail().getValue(),
       name: user.getName(),
+      role: user.getRole(),
       isActive: user.isActive(),
       createdAt: user.getCreatedAt().toISOString(),
       updatedAt: user.getUpdatedAt().toISOString(),
