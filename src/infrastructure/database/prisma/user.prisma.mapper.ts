@@ -1,6 +1,6 @@
 import { User as PrismaUser, Prisma } from '@prisma/client';
 
-import { User } from '@core/entities/user.entity';
+import { Role, User } from '@core/entities/user.entity';
 import { Email } from '@core/value-objects/email.value-object';
 import { Uuid } from '@core/value-objects/uuid.value-object';
 
@@ -11,6 +11,7 @@ export class UserPrismaMapper {
       email: new Email(raw.email),
       name: raw.name,
       passwordHash: raw.passwordHash,
+      role: raw.role as Role,
       isActive: raw.isActive,
       createdAt: raw.createdAt,
       updatedAt: raw.updatedAt,
@@ -23,6 +24,7 @@ export class UserPrismaMapper {
       email: user.getEmail().getValue(),
       name: user.getName(),
       passwordHash: user.getPasswordHash(),
+      role: user.getRole(),
       isActive: user.isActive(),
     };
   }
@@ -32,6 +34,7 @@ export class UserPrismaMapper {
       email: user.getEmail().getValue(),
       name: user.getName(),
       passwordHash: user.getPasswordHash(),
+      role: user.getRole(),
       isActive: user.isActive(),
     };
   }

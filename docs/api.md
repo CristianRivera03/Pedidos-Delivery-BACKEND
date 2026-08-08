@@ -28,7 +28,80 @@ Respuesta `200`:
 }
 ```
 
+## Auth
+
+Todas las rutas protegidas requieren `Authorization: Bearer <token>`. El token se obtiene
+en `/auth/register` o `/auth/login` y contiene `sub` (id), `email` y `role`.
+
+Roles disponibles: `ADMIN`, `CUSTOMER`, `DELIVERY`, `RESTAURANT`.
+
+### `POST /api/v1/auth/register`
+
+Registro público. `role` es opcional (`CUSTOMER` por defecto) y **no permite** `ADMIN`.
+
+**Body:**
+```json
+{
+  "email": "juan@example.com",
+  "name": "Juan Pérez",
+  "password": "12345678",
+  "role": "RESTAURANT"
+}
+```
+
+**Respuestas:**
+
+`201 Created`:
+```json
+{
+  "success": true,
+  "data": {
+    "token": "eyJ...",
+    "user": {
+      "id": "uuid",
+      "email": "juan@example.com",
+      "name": "Juan Pérez",
+      "role": "RESTAURANT",
+      "isActive": true,
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z"
+    }
+  }
+}
+```
+
+`400 Bad Request`: validación (incluye intentar mandar `role: "ADMIN"`).
+`409 Conflict`: email duplicado.
+
+---
+
+### `POST /api/v1/auth/login`
+
+**Body:**
+```json
+{
+  "email": "juan@example.com",
+  "password": "12345678"
+}
+```
+
+**Respuestas:**
+
+`200 OK`: igual forma que `/auth/register` (`{ token, user }`).
+`401 Unauthorized`: credenciales inválidas (mensaje genérico, no distingue email inexistente
+de password incorrecto).
+
 ## Users
+
+Todas las rutas requieren token (`authGuard`). Además:
+
+| Endpoint | Quién puede |
+|---|---|
+| `GET /users` | Solo `ADMIN` |
+| `POST /users` | Solo `ADMIN` (puede asignar cualquier rol, incluido `ADMIN`) |
+| `GET /users/:id` | Dueño del recurso o `ADMIN` |
+| `PATCH /users/:id` | Dueño del recurso o `ADMIN` (el campo `role` se ignora si no eres `ADMIN`) |
+| `DELETE /users/:id` | Solo `ADMIN` |
 
 ### `POST /api/v1/users`
 
@@ -39,7 +112,8 @@ Crear un usuario.
 {
   "email": "juan@example.com",
   "name": "Juan Pérez",
-  "password": "12345678"
+  "password": "12345678",
+  "role": "DELIVERY"
 }
 ```
 
@@ -47,6 +121,7 @@ Crear un usuario.
 - `email`: formato válido.
 - `name`: 2-100 caracteres.
 - `password`: 8-100 caracteres.
+- `role`: opcional, uno de `ADMIN`, `CUSTOMER`, `DELIVERY`, `RESTAURANT` (default `CUSTOMER`).
 
 **Respuestas:**
 
@@ -58,6 +133,7 @@ Crear un usuario.
     "id": "uuid",
     "email": "juan@example.com",
     "name": "Juan Pérez",
+    "role": "DELIVERY",
     "isActive": true,
     "createdAt": "2026-01-01T00:00:00.000Z",
     "updatedAt": "2026-01-01T00:00:00.000Z"
@@ -76,6 +152,8 @@ Crear un usuario.
 }
 ```
 
+`401 Unauthorized` / `403 Forbidden`: falta token o no eres `ADMIN`.
+
 `409 Conflict` (email duplicado):
 ```json
 {
@@ -91,7 +169,7 @@ Crear un usuario.
 
 ### `GET /api/v1/users`
 
-Listar todos los usuarios.
+Listar todos los usuarios (solo `ADMIN`).
 
 **Respuesta `200`:**
 ```json
@@ -102,6 +180,7 @@ Listar todos los usuarios.
       "id": "uuid",
       "email": "juan@example.com",
       "name": "Juan Pérez",
+      "role": "CUSTOMER",
       "isActive": true,
       "createdAt": "2026-01-01T00:00:00.000Z",
       "updatedAt": "2026-01-01T00:00:00.000Z"
@@ -114,7 +193,7 @@ Listar todos los usuarios.
 
 ### `GET /api/v1/users/:id`
 
-Obtener un usuario por ID.
+Obtener un usuario por ID (dueño o `ADMIN`).
 
 **Parámetros:**
 - `id` (UUID, path).
@@ -128,6 +207,8 @@ Obtener un usuario por ID.
   "data": { /* user */ }
 }
 ```
+
+`401 Unauthorized` / `403 Forbidden`: falta token o no eres el dueño ni `ADMIN`.
 
 `404 Not Found`:
 ```json
@@ -144,7 +225,7 @@ Obtener un usuario por ID.
 
 ### `PATCH /api/v1/users/:id`
 
-Actualizar un usuario (parcial).
+Actualizar un usuario (parcial, dueño o `ADMIN`).
 
 **Body** (todos los campos opcionales):
 ```json
@@ -152,14 +233,18 @@ Actualizar un usuario (parcial).
   "email": "nuevo@example.com",
   "name": "Juan Pérez Updated",
   "password": "nuevaPassword123",
+  "role": "ADMIN",
   "isActive": false
 }
 ```
+
+> `role` solo se aplica si quien llama es `ADMIN`; si no, se descarta silenciosamente.
 
 **Respuestas:**
 
 `200 OK`: usuario actualizado.
 `400 Bad Request`: validación.
+`401 Unauthorized` / `403 Forbidden`: falta token o no eres el dueño ni `ADMIN`.
 `404 Not Found`: no existe.
 `409 Conflict`: email en uso por otro usuario.
 
@@ -167,11 +252,13 @@ Actualizar un usuario (parcial).
 
 ### `DELETE /api/v1/users/:id`
 
-Eliminar un usuario.
+Eliminar un usuario (solo `ADMIN`).
 
 **Respuestas:**
 
 `204 No Content`: eliminado.
+
+`401 Unauthorized` / `403 Forbidden`: falta token o no eres `ADMIN`.
 
 `404 Not Found`: no existe.
 
@@ -180,6 +267,8 @@ Eliminar un usuario.
 | Status | Type | Cuándo |
 |---|---|---|
 | `400` | `ValidationError` | Body/params no válidos |
+| `401` | `UnauthorizedError` | Token faltante, inválido o credenciales incorrectas |
+| `403` | `ForbiddenError` | Autenticado pero sin permiso para el recurso |
 | `404` | `NotFoundError` | Recurso no existe |
 | `409` | `ConflictError` | Duplicado (email) |
 | `500` | `InternalServerError` | Error no controlado |
@@ -202,7 +291,8 @@ Error:
 ## Headers
 
 - `Content-Type: application/json` (todas las requests).
-- `Authorization: Bearer <token>` (cuando se implemente auth).
+- `Authorization: Bearer <token>` (requerido en todas las rutas de `/users`, obtenido en
+  `/auth/register` o `/auth/login`).
 
 ## CORS
 
@@ -228,9 +318,9 @@ router.get('/', ...)
 
 Schemas reutilizables (en `swagger.config.ts`):
 
-- `User`
-- `CreateUserRequest`
-- `UpdateUserRequest`
+- `User`, `Role`
+- `CreateUserRequest`, `UpdateUserRequest`
+- `RegisterRequest`, `LoginRequest`, `AuthResponse`
 - `SuccessResponse`
 - `ErrorResponse`
-- `NotFound`, `BadRequest`, `Conflict`, `InternalServerError`
+- `NotFound`, `BadRequest`, `Conflict`, `Unauthorized`, `Forbidden`, `InternalServerError`

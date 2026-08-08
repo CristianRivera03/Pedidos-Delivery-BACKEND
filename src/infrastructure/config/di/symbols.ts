@@ -15,4 +15,6 @@ export const USE_CASE_SYMBOLS = {
   ListUsersUseCase: Symbol.for('ListUsersUseCase'),
   UpdateUserUseCase: Symbol.for('UpdateUserUseCase'),
   DeleteUserUseCase: Symbol.for('DeleteUserUseCase'),
+  LoginUseCase: Symbol.for('LoginUseCase'),
+  RegisterUseCase: Symbol.for('RegisterUseCase'),
 } as const;

@@ -1,10 +1,13 @@
 import { z } from 'zod';
 
+const roleEnum = z.enum(['ADMIN', 'CUSTOMER', 'DELIVERY', 'RESTAURANT']);
+
 export const createUserSchema = z.object({
   body: z.object({
     email: z.string().email('Invalid email format'),
     name: z.string().min(2, 'Name must be at least 2 characters').max(100),
     password: z.string().min(8, 'Password must be at least 8 characters').max(100),
+    role: roleEnum.optional(),
   }),
 });
 
@@ -13,6 +16,7 @@ export const updateUserSchema = z.object({
     email: z.string().email('Invalid email format').optional(),
     name: z.string().min(2).max(100).optional(),
     password: z.string().min(8).max(100).optional(),
+    role: roleEnum.optional(),
     isActive: z.boolean().optional(),
   }),
   params: z.object({

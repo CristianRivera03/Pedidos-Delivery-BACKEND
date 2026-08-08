@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Role } from '@prisma/client';
 import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
@@ -18,11 +18,12 @@ async function main(): Promise<void> {
 
   const admin = await prisma.user.upsert({
     where: { email: SEED_ADMIN_EMAIL },
-    update: {},
+    update: { role: Role.ADMIN },
     create: {
       email: SEED_ADMIN_EMAIL,
       name: SEED_ADMIN_NAME,
       passwordHash,
+      role: Role.ADMIN,
       isActive: true,
     },
   });
