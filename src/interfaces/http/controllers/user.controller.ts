@@ -40,6 +40,9 @@ export class UserController {
   public async update(req: Request, res: Response): Promise<void> {
     const { id } = req.params as { id: string };
     const dto = req.body as UpdateUserInput;
+    if (req.user?.role !== 'ADMIN') {
+      delete dto.role;
+    }
     const user = await this.updateUseCase.execute(id, dto);
     res.status(200).json({ success: true, data: UserMapper.toDto(user) });
   }

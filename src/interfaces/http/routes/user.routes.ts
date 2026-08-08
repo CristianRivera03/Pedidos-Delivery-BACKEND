@@ -1,6 +1,8 @@
 import { Router } from 'express';
 
 import { buildUserController, UserController } from '@interfaces/http/controllers/user.controller';
+import { authGuard } from '@interfaces/http/middlewares/auth.middleware';
+import { authorize, selfOrRole } from '@interfaces/http/middlewares/role.middleware';
 import { validate, validateAll } from '@interfaces/http/middlewares/validate.middleware';
 import {
   createUserSchema,
@@ -21,6 +23,8 @@ import {
  *   get:
  *     summary: Listar todos los usuarios
  *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Lista de usuarios
@@ -36,11 +40,17 @@ import {
  *                   type: array
  *                   items:
  *                     $ref: '#/components/schemas/User'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
  *       500:
  *         $ref: '#/components/responses/InternalServerError'
  *   post:
- *     summary: Crear un nuevo usuario
+ *     summary: Crear un nuevo usuario (solo admin)
  *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -62,15 +72,21 @@ import {
  *                   $ref: '#/components/schemas/User'
  *       400:
  *         $ref: '#/components/responses/BadRequest'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
  *       409:
  *         $ref: '#/components/responses/Conflict'
  */
 export function buildUserRoutes(controller: UserController = buildUserController()): Router {
   const router = Router();
 
-  router.get('/', async (req, res) => controller.list(req, res));
+  router.get('/', authGuard, authorize('ADMIN'), async (req, res) => controller.list(req, res));
   router.post(
     '/',
+    authGuard,
+    authorize('ADMIN'),
     validate(createUserSchema, 'body'),
     async (req, res) => controller.create(req, res),
   );
@@ -79,8 +95,10 @@ export function buildUserRoutes(controller: UserController = buildUserController
    * @openapi
    * /users/{id}:
    *   get:
-   *     summary: Obtener un usuario por ID
+   *     summary: Obtener un usuario por ID (dueño o admin)
    *     tags: [Users]
+   *     security:
+   *       - bearerAuth: []
    *     parameters:
    *       - in: path
    *         name: id
@@ -100,11 +118,17 @@ export function buildUserRoutes(controller: UserController = buildUserController
    *                   type: boolean
    *                 data:
    *                   $ref: '#/components/schemas/User'
+   *       401:
+   *         $ref: '#/components/responses/Unauthorized'
+   *       403:
+   *         $ref: '#/components/responses/Forbidden'
    *       404:
    *         $ref: '#/components/responses/NotFound'
    *   patch:
-   *     summary: Actualizar un usuario (parcial)
+   *     summary: Actualizar un usuario (parcial, dueño o admin)
    *     tags: [Users]
+   *     security:
+   *       - bearerAuth: []
    *     parameters:
    *       - in: path
    *         name: id
@@ -132,13 +156,19 @@ export function buildUserRoutes(controller: UserController = buildUserController
    *                   $ref: '#/components/schemas/User'
    *       400:
    *         $ref: '#/components/responses/BadRequest'
+   *       401:
+   *         $ref: '#/components/responses/Unauthorized'
+   *       403:
+   *         $ref: '#/components/responses/Forbidden'
    *       404:
    *         $ref: '#/components/responses/NotFound'
    *       409:
    *         $ref: '#/components/responses/Conflict'
    *   delete:
-   *     summary: Eliminar un usuario
+   *     summary: Eliminar un usuario (solo admin)
    *     tags: [Users]
+   *     security:
+   *       - bearerAuth: []
    *     parameters:
    *       - in: path
    *         name: id
@@ -149,21 +179,31 @@ export function buildUserRoutes(controller: UserController = buildUserController
    *     responses:
    *       204:
    *         description: Usuario eliminado
+   *       401:
+   *         $ref: '#/components/responses/Unauthorized'
+   *       403:
+   *         $ref: '#/components/responses/Forbidden'
    *       404:
    *         $ref: '#/components/responses/NotFound'
    */
   router.get(
     '/:id',
+    authGuard,
     validate(userIdParamSchema, 'params'),
+    selfOrRole('ADMIN'),
     async (req, res) => controller.getById(req, res),
   );
   router.patch(
     '/:id',
+    authGuard,
     validateAll(updateUserSchema),
+    selfOrRole('ADMIN'),
     async (req, res) => controller.update(req, res),
   );
   router.delete(
     '/:id',
+    authGuard,
+    authorize('ADMIN'),
     validate(userIdParamSchema, 'params'),
     async (req, res) => controller.delete(req, res),
   );

@@ -49,6 +49,10 @@ export class UpdateUserUseCase {
       user.changePasswordHash(passwordHash);
     }
 
+    if (dto.role !== undefined) {
+      user.changeRole(dto.role);
+    }
+
     if (dto.isActive !== undefined) {
       if (dto.isActive) {
         user.activate();

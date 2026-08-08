@@ -2,11 +2,14 @@ import { Email } from '@core/value-objects/email.value-object';
 import { Uuid } from '@core/value-objects/uuid.value-object';
 import { ValidationError } from '@core/errors/validation.error';
 
+export type Role = 'ADMIN' | 'CUSTOMER' | 'DELIVERY' | 'RESTAURANT';
+
 export interface UserProps {
   id: Uuid;
   email: Email;
   name: string;
   passwordHash: string;
+  role: Role;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -17,6 +20,7 @@ export class User {
   private _email: Email;
   private _name: string;
   private _passwordHash: string;
+  private _role: Role;
   private _isActive: boolean;
   private readonly _createdAt: Date;
   private _updatedAt: Date;
@@ -26,6 +30,7 @@ export class User {
     this._email = props.email;
     this._name = props.name;
     this._passwordHash = props.passwordHash;
+    this._role = props.role;
     this._isActive = props.isActive;
     this._createdAt = props.createdAt;
     this._updatedAt = props.updatedAt;
@@ -45,6 +50,10 @@ export class User {
 
   public getPasswordHash(): string {
     return this._passwordHash;
+  }
+
+  public getRole(): Role {
+    return this._role;
   }
 
   public isActive(): boolean {
@@ -74,6 +83,11 @@ export class User {
 
   public changePasswordHash(passwordHash: string): void {
     this._passwordHash = passwordHash;
+    this._updatedAt = new Date();
+  }
+
+  public changeRole(role: Role): void {
+    this._role = role;
     this._updatedAt = new Date();
   }
 
