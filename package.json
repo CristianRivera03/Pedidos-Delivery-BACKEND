@@ -7,6 +7,7 @@
     "setup": "node bin/setup.mjs",
     "dev": "tsx watch -r tsconfig-paths/register src/main/server.ts",
     "build": "tsc && tsc-alias",
+    "render-build": "npm install && npx prisma generate && npx prisma migrate deploy && npm run build",
     "start": "node dist/main/server.js",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
