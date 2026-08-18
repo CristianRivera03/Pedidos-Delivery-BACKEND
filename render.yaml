@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: pedidos-delivery-backend
+    env: node
+    plan: free
+    buildCommand: npm run render-build
+    startCommand: node dist/main/server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: APP_NAME
+        value: pedidos-delivery-backend
+      - key: USE_LOCAL_DB
+        value: "false"
+      - key: DATABASE_URL
+        sync: false
+      - key: DIRECT_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: BCRYPT_SALT_ROUNDS
+        value: "10"
+      - key: LOG_LEVEL
+        value: info
