@@ -50,6 +50,7 @@ const swaggerOptions = {
             id: { type: 'string', format: 'uuid', example: '550e8400-e29b-41d4-a716-446655440000' },
             email: { type: 'string', format: 'email', example: 'juan@example.com' },
             name: { type: 'string', example: 'Juan Pérez' },
+            phone: { type: 'string', example: '+50370001234' },
             role: { $ref: '#/components/schemas/Role' },
             isActive: { type: 'boolean', example: true },
             createdAt: { type: 'string', format: 'date-time' },
@@ -58,10 +59,11 @@ const swaggerOptions = {
         },
         CreateUserRequest: {
           type: 'object',
-          required: ['email', 'name', 'password'],
+          required: ['email', 'name', 'phone', 'password'],
           properties: {
             email: { type: 'string', format: 'email' },
             name: { type: 'string', minLength: 2, maxLength: 100 },
+            phone: { type: 'string', example: '+50370001234' },
             password: { type: 'string', minLength: 8, maxLength: 100 },
             role: { $ref: '#/components/schemas/Role' },
           },
@@ -71,6 +73,7 @@ const swaggerOptions = {
           properties: {
             email: { type: 'string', format: 'email' },
             name: { type: 'string', minLength: 2, maxLength: 100 },
+            phone: { type: 'string', example: '+50370001234' },
             password: { type: 'string', minLength: 8, maxLength: 100 },
             role: { $ref: '#/components/schemas/Role' },
             isActive: { type: 'boolean' },
@@ -78,10 +81,11 @@ const swaggerOptions = {
         },
         RegisterRequest: {
           type: 'object',
-          required: ['email', 'name', 'password'],
+          required: ['email', 'name', 'phone', 'password'],
           properties: {
             email: { type: 'string', format: 'email' },
             name: { type: 'string', minLength: 2, maxLength: 100 },
+            phone: { type: 'string', example: '+50370001234' },
             password: { type: 'string', minLength: 8, maxLength: 100 },
             role: {
               type: 'string',

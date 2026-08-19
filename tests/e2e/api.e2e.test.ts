@@ -37,6 +37,7 @@ describe('API Endpoints (E2E Test Suite)', () => {
       const payload = {
         name: 'Usuario Ejemplo',
         email: 'ejemplo@pedidos.local',
+        phone: '70001234',
         password: 'Password123!',
         role: 'CUSTOMER',
       };
@@ -70,6 +71,7 @@ describe('API Endpoints (E2E Test Suite)', () => {
       const payload = {
         name: 'Usuario Login',
         email: 'login@pedidos.local',
+        phone: '70001235',
         password: 'Password123!',
         role: 'CUSTOMER',
       };
@@ -93,6 +95,7 @@ describe('API Endpoints (E2E Test Suite)', () => {
       const payload = {
         name: 'User Test',
         email: 'user@pedidos.local',
+        phone: '70001236',
         password: 'Password123!',
       };
 
@@ -119,6 +122,7 @@ describe('API Endpoints (E2E Test Suite)', () => {
       const regRes = await request(app).post('/api/v1/auth/register').send({
         name: 'Admin Global',
         email: 'admin.global@pedidos.local',
+        phone: '70001237',
         password: 'AdminPassword123!',
         role: 'CUSTOMER',
       });
