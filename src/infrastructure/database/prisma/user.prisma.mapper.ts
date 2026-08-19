@@ -10,6 +10,7 @@ export class UserPrismaMapper {
       id: new Uuid(raw.id),
       email: new Email(raw.email),
       name: raw.name,
+      phone: raw.phone,
       passwordHash: raw.passwordHash,
       role: raw.role as Role,
       isActive: raw.isActive,
@@ -23,6 +24,7 @@ export class UserPrismaMapper {
       id: user.getId().getValue(),
       email: user.getEmail().getValue(),
       name: user.getName(),
+      phone: user.getPhone(),
       passwordHash: user.getPasswordHash(),
       role: user.getRole(),
       isActive: user.isActive(),
@@ -33,6 +35,7 @@ export class UserPrismaMapper {
     return {
       email: user.getEmail().getValue(),
       name: user.getName(),
+      phone: user.getPhone(),
       passwordHash: user.getPasswordHash(),
       role: user.getRole(),
       isActive: user.isActive(),

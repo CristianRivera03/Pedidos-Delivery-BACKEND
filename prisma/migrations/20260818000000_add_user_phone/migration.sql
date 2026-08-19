@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "users" ADD COLUMN     "phone" VARCHAR(20) NOT NULL DEFAULT '';
+ALTER TABLE "users" ALTER COLUMN "phone" DROP DEFAULT;

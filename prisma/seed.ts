@@ -6,6 +6,7 @@ const prisma = new PrismaClient();
 
 const SEED_ADMIN_EMAIL = process.env.SEED_ADMIN_EMAIL ?? 'admin@pedidos.local';
 const SEED_ADMIN_NAME = process.env.SEED_ADMIN_NAME ?? 'Admin';
+const SEED_ADMIN_PHONE = process.env.SEED_ADMIN_PHONE ?? '00000000';
 const SEED_ADMIN_PASSWORD = process.env.SEED_ADMIN_PASSWORD ?? 'Admin123!';
 const BCRYPT_SALT_ROUNDS = Number(process.env.BCRYPT_SALT_ROUNDS ?? 10);
 
@@ -22,6 +23,7 @@ async function main(): Promise<void> {
     create: {
       email: SEED_ADMIN_EMAIL,
       name: SEED_ADMIN_NAME,
+      phone: SEED_ADMIN_PHONE,
       passwordHash,
       role: Role.ADMIN,
       isActive: true,
