@@ -44,6 +44,10 @@ export class UpdateUserUseCase {
       user.changeName(dto.name);
     }
 
+    if (dto.phone !== undefined) {
+      user.changePhone(dto.phone);
+    }
+
     if (dto.password !== undefined) {
       const passwordHash = await this.hashService.hash(dto.password);
       user.changePasswordHash(passwordHash);

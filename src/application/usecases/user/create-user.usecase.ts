@@ -38,6 +38,7 @@ export class CreateUserUseCase {
       id: new Uuid(),
       email,
       name: dto.name.trim(),
+      phone: dto.phone.trim(),
       passwordHash,
       role: dto.role ?? 'CUSTOMER',
       isActive: true,

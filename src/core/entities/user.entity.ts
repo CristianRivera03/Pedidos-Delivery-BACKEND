@@ -8,6 +8,7 @@ export interface UserProps {
   id: Uuid;
   email: Email;
   name: string;
+  phone: string;
   passwordHash: string;
   role: Role;
   isActive: boolean;
@@ -19,6 +20,7 @@ export class User {
   private readonly _id: Uuid;
   private _email: Email;
   private _name: string;
+  private _phone: string;
   private _passwordHash: string;
   private _role: Role;
   private _isActive: boolean;
@@ -29,6 +31,7 @@ export class User {
     this._id = props.id;
     this._email = props.email;
     this._name = props.name;
+    this._phone = props.phone;
     this._passwordHash = props.passwordHash;
     this._role = props.role;
     this._isActive = props.isActive;
@@ -46,6 +49,10 @@ export class User {
 
   public getName(): string {
     return this._name;
+  }
+
+  public getPhone(): string {
+    return this._phone;
   }
 
   public getPasswordHash(): string {
@@ -78,6 +85,14 @@ export class User {
 
   public changeEmail(email: Email): void {
     this._email = email;
+    this._updatedAt = new Date();
+  }
+
+  public changePhone(phone: string): void {
+    if (!phone || phone.trim().length === 0) {
+      throw new ValidationError('Phone cannot be empty');
+    }
+    this._phone = phone.trim();
     this._updatedAt = new Date();
   }
 
