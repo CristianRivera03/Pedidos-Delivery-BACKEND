@@ -32,6 +32,11 @@ export class UserController {
     res.status(200).json({ success: true, data: UserMapper.toDto(user) });
   }
 
+  public async me(req: Request, res: Response): Promise<void> {
+    const user = await this.getUseCase.execute(req.user!.id);
+    res.status(200).json({ success: true, data: UserMapper.toDto(user) });
+  }
+
   public async list(_req: Request, res: Response): Promise<void> {
     const users = await this.listUseCase.execute();
     res.status(200).json({ success: true, data: UserMapper.toDtoList(users) });

@@ -93,6 +93,33 @@ export function buildUserRoutes(controller: UserController = buildUserController
 
   /**
    * @openapi
+   * /users/me:
+   *   get:
+   *     summary: Obtener el perfil del usuario autenticado
+   *     tags: [Users]
+   *     security:
+   *       - bearerAuth: []
+   *     responses:
+   *       200:
+   *         description: Usuario autenticado
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 success:
+   *                   type: boolean
+   *                 data:
+   *                   $ref: '#/components/schemas/User'
+   *       401:
+   *         $ref: '#/components/responses/Unauthorized'
+   *       404:
+   *         $ref: '#/components/responses/NotFound'
+   */
+  router.get('/me', authGuard, async (req, res) => controller.me(req, res));
+
+  /**
+   * @openapi
    * /users/{id}:
    *   get:
    *     summary: Obtener un usuario por ID (dueño o admin)

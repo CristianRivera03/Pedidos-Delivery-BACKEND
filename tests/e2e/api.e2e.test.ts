@@ -147,4 +147,36 @@ describe('API Endpoints (E2E Test Suite)', () => {
       expect(response.body.data.length).toBeGreaterThan(0);
     });
   });
+
+  describe('GET /api/v1/users/me (Protected Endpoint)', () => {
+    it('debería retornar 401 si no se envía token JWT', async () => {
+      const response = await request(app).get('/api/v1/users/me');
+      expect(response.status).toBe(401);
+    });
+
+    it('debería retornar el perfil del usuario autenticado', async () => {
+      const payload = {
+        name: 'Usuario Me',
+        email: 'me@pedidos.local',
+        phone: '70001238',
+        password: 'Password123!',
+        role: 'CUSTOMER',
+      };
+
+      const regRes = await request(app).post('/api/v1/auth/register').send(payload);
+      const token = regRes.body.data.token;
+
+      const response = await request(app)
+        .get('/api/v1/users/me')
+        .set('Authorization', `Bearer ${token}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toMatchObject({
+        id: regRes.body.data.user.id,
+        email: payload.email,
+        name: payload.name,
+      });
+    });
+  });
 });
