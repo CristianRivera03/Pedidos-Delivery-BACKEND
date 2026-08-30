@@ -54,6 +54,12 @@ describe('API Endpoints (E2E Test Suite)', () => {
         email: payload.email,
         role: payload.role,
       });
+      expect(response.body.data.user.createdAt).toMatch(
+        /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}-06:00$/,
+      );
+      expect(response.body.data.user.updatedAt).toMatch(
+        /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}-06:00$/,
+      );
     });
 
     it('debería retornar 400 si los datos son inválidos', async () => {
@@ -177,6 +183,36 @@ describe('API Endpoints (E2E Test Suite)', () => {
         email: payload.email,
         name: payload.name,
       });
+      expect(response.body.data.createdAt).toMatch(/-06:00$/);
+      expect(response.body.data.updatedAt).toMatch(/-06:00$/);
+    });
+  });
+
+  describe('PATCH /api/v1/users/:id', () => {
+    it('conserva createdAt y avanza updatedAt al actualizar un usuario', async () => {
+      const registerResponse = await request(app).post('/api/v1/auth/register').send({
+        name: 'Usuario Actualizable',
+        email: 'actualizable@pedidos.local',
+        phone: '70001239',
+        password: 'Password123!',
+        role: 'CUSTOMER',
+      });
+      const original = registerResponse.body.data.user;
+      const token = registerResponse.body.data.token;
+
+      await new Promise((resolve) => setTimeout(resolve, 5));
+
+      const response = await request(app)
+        .patch(`/api/v1/users/${original.id}`)
+        .set('Authorization', `Bearer ${token}`)
+        .send({ name: 'Usuario Actualizado' });
+
+      expect(response.status).toBe(200);
+      expect(response.body.data.createdAt).toBe(original.createdAt);
+      expect(response.body.data.updatedAt).toMatch(/-06:00$/);
+      expect(new Date(response.body.data.updatedAt).getTime()).toBeGreaterThan(
+        new Date(original.updatedAt).getTime(),
+      );
     });
   });
 });
