@@ -1,35 +1,27 @@
 import { inject, injectable } from 'tsyringe';
 
 import { RefreshToken } from '@core/entities/refresh-token.entity';
-import { User } from '@core/entities/user.entity';
 import { UnauthorizedError } from '@core/errors/unauthorized.error';
 import { RefreshTokenRepository } from '@core/repositories/refresh-token.repository';
 import { UserRepository } from '@core/repositories/user.repository';
-import { HashService } from '@core/services/hash.service';
 import { LoggerService } from '@core/services/logger.service';
 import { RefreshTokenService } from '@core/services/refresh-token.service';
 import { TokenService } from '@core/services/token.service';
 import { Uuid } from '@core/value-objects/uuid.value-object';
 
-import { AuthTokenPayload, LoginDto } from '@application/dto/auth-token.dto';
+import { AuthTokenPayload } from '@application/dto/auth-token.dto';
 
 import { REPOSITORY_SYMBOLS, SERVICE_SYMBOLS } from '@infrastructure/config/di/symbols';
 
-export interface AuthResult {
-  user: User;
-  token: string;
-  refreshToken: string;
-}
+import { AuthResult } from './login.usecase';
 
 @injectable()
-export class LoginUseCase {
+export class RefreshTokenUseCase {
   constructor(
-    @inject(REPOSITORY_SYMBOLS.UserRepository)
-    private readonly userRepository: UserRepository,
     @inject(REPOSITORY_SYMBOLS.RefreshTokenRepository)
     private readonly refreshTokenRepository: RefreshTokenRepository,
-    @inject(SERVICE_SYMBOLS.HashService)
-    private readonly hashService: HashService,
+    @inject(REPOSITORY_SYMBOLS.UserRepository)
+    private readonly userRepository: UserRepository,
     @inject(SERVICE_SYMBOLS.TokenService)
     private readonly tokenService: TokenService,
     @inject(SERVICE_SYMBOLS.RefreshTokenService)
@@ -38,16 +30,33 @@ export class LoginUseCase {
     private readonly logger: LoggerService,
   ) {}
 
-  public async execute(dto: LoginDto): Promise<AuthResult> {
-    const user = await this.userRepository.findByEmail(dto.email.toLowerCase());
-    if (!user || !user.isActive()) {
-      throw new UnauthorizedError('Invalid credentials');
+  public async execute(rawRefreshToken: string): Promise<AuthResult> {
+    const tokenHash = this.refreshTokenService.hash(rawRefreshToken);
+    const stored = await this.refreshTokenRepository.findByTokenHash(tokenHash);
+
+    if (!stored) {
+      throw new UnauthorizedError('Invalid refresh token');
     }
 
-    const passwordMatches = await this.hashService.compare(dto.password, user.getPasswordHash());
-    if (!passwordMatches) {
-      throw new UnauthorizedError('Invalid credentials');
+    if (stored.isRevoked()) {
+      // A revoked token being reused suggests it was stolen: kill the whole session.
+      await this.refreshTokenRepository.revokeAllForUser(stored.getUserId());
+      this.logger.warn('Reused refresh token detected, revoking all sessions', {
+        userId: stored.getUserId(),
+      });
+      throw new UnauthorizedError('Refresh token has been revoked');
     }
+
+    if (stored.isExpired()) {
+      throw new UnauthorizedError('Refresh token has expired');
+    }
+
+    const user = await this.userRepository.findById(stored.getUserId());
+    if (!user || !user.isActive()) {
+      throw new UnauthorizedError('Invalid refresh token');
+    }
+
+    await this.refreshTokenRepository.revoke(stored.getId().getValue());
 
     const payload: AuthTokenPayload = {
       sub: user.getId().getValue(),
@@ -56,19 +65,19 @@ export class LoginUseCase {
     };
     const token = this.tokenService.sign(payload);
 
-    const rawRefreshToken = this.refreshTokenService.generate();
+    const rawNewRefreshToken = this.refreshTokenService.generate();
     await this.refreshTokenRepository.create(
       new RefreshToken({
         id: new Uuid(),
         userId: user.getId().getValue(),
-        tokenHash: this.refreshTokenService.hash(rawRefreshToken),
+        tokenHash: this.refreshTokenService.hash(rawNewRefreshToken),
         expiresAt: this.refreshTokenService.getExpiresAt(),
         revokedAt: null,
         createdAt: new Date(),
       }),
     );
 
-    this.logger.info('User logged in', { userId: user.getId().getValue() });
-    return { user, token, refreshToken: rawRefreshToken };
+    this.logger.info('Refresh token rotated', { userId: user.getId().getValue() });
+    return { user, token, refreshToken: rawNewRefreshToken };
   }
 }

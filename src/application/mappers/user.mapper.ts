@@ -1,5 +1,6 @@
 import { User } from '@core/entities/user.entity';
 import { UserResponseDto } from '@application/dto/user-response.dto';
+import { toElSalvadorIsoString } from '@application/utils/el-salvador-date.util';
 
 export class UserMapper {
   public static toDto(user: User): UserResponseDto {
@@ -10,8 +11,8 @@ export class UserMapper {
       phone: user.getPhone(),
       role: user.getRole(),
       isActive: user.isActive(),
-      createdAt: user.getCreatedAt().toISOString(),
-      updatedAt: user.getUpdatedAt().toISOString(),
+      createdAt: toElSalvadorIsoString(user.getCreatedAt()),
+      updatedAt: toElSalvadorIsoString(user.getUpdatedAt()),
     };
   }
 
