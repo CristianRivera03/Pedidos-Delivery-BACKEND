@@ -18,9 +18,13 @@ const envSchema = z
     DIRECT_URL: z.string().optional(),
 
     JWT_SECRET: z.string().min(10, 'JWT_SECRET must be at least 10 characters'),
-    JWT_EXPIRES_IN: z.string().default('7d'),
+    JWT_EXPIRES_IN: z.string().default('15m'),
+    REFRESH_TOKEN_EXPIRES_IN_DAYS: z.coerce.number().int().positive().default(30),
     BCRYPT_SALT_ROUNDS: z.coerce.number().int().min(4).max(15).default(10),
     LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
+
+    LOGIN_RATE_LIMIT_WINDOW_MS: z.coerce.number().int().positive().default(15 * 60 * 1000),
+    LOGIN_RATE_LIMIT_MAX: z.coerce.number().int().positive().default(5),
   })
   .refine(
     (data) =>
