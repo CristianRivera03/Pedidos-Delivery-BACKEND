@@ -102,6 +102,13 @@ const swaggerOptions = {
             password: { type: 'string' },
           },
         },
+        RefreshTokenRequest: {
+          type: 'object',
+          required: ['refreshToken'],
+          properties: {
+            refreshToken: { type: 'string' },
+          },
+        },
         AuthResponse: {
           type: 'object',
           properties: {
@@ -110,6 +117,7 @@ const swaggerOptions = {
               type: 'object',
               properties: {
                 token: { type: 'string' },
+                refreshToken: { type: 'string' },
                 user: { $ref: '#/components/schemas/User' },
               },
             },
