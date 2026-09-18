@@ -29,6 +29,22 @@ export class ProductInMemoryRepository implements ProductRepository {
     return result.sort((a, b) => b.getCreatedAt().getTime() - a.getCreatedAt().getTime());
   }
 
+  public async findPaginated(filter?: ProductFilter): Promise<{ items: Product[]; total: number; page: number; limit: number }> {
+    const all = await this.findAll(filter);
+    const page = filter?.page && filter.page > 0 ? filter.page : 1;
+    const limit = filter?.limit && filter.limit > 0 ? filter.limit : 10;
+    const startIndex = (page - 1) * limit;
+    const items = all.slice(startIndex, startIndex + limit);
+
+    return {
+      items,
+      total: all.length,
+      page,
+      limit,
+    };
+  }
+
+
   public async create(product: Product): Promise<Product> {
     this.products.set(product.getId().getValue(), product);
     return product;

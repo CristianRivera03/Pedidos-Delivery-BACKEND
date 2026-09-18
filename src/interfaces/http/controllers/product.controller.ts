@@ -27,12 +27,33 @@ export class ProductController {
 
   public async list(req: Request, res: Response): Promise<void> {
     const query = req.query as unknown as ListProductsQuery;
-    const products = await this.listUseCase.execute({
+    const page = query.page !== undefined ? Number(query.page) : 1;
+    const limit = query.limit !== undefined ? Number(query.limit) : 10;
+
+    const result = await this.listUseCase.execute({
       categoryId: query.categoryId,
       search: query.search,
       activeOnly: query.activeOnly,
+      page,
+      limit,
     });
-    sendSuccess(req, res, ProductMapper.toDtoList(products), 200);
+
+    const totalPages = Math.ceil(result.total / limit);
+
+    sendSuccess(
+      req,
+      res,
+      ProductMapper.toDtoList(result.items),
+      200,
+      {
+        page,
+        limit,
+        totalItems: result.total,
+        totalPages,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1,
+      },
+    );
   }
 
   public async getById(req: Request, res: Response): Promise<void> {
