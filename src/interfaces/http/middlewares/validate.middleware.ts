@@ -20,7 +20,8 @@ export function validate(schema: ZodSchema, source: Source = 'body') {
             req.params = value as Record<string, string>;
             break;
           case 'query':
-            req.query = value as Record<string, string | string[]>;
+            // req.query only has a getter in Express; mutate the existing object instead of replacing the reference.
+            Object.assign(req.query, value);
             break;
         }
       }
@@ -44,7 +45,7 @@ export function validateAll(schema: ZodSchema) {
 
       if (parsed.body) req.body = parsed.body as Record<string, unknown>;
       if (parsed.params) req.params = parsed.params as Record<string, string>;
-      if (parsed.query) req.query = parsed.query as Record<string, string | string[]>;
+      if (parsed.query) Object.assign(req.query, parsed.query);
 
       next();
     } catch (error) {

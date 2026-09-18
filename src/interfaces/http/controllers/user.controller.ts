@@ -9,6 +9,7 @@ import { UpdateUserUseCase } from '@application/usecases/user/update-user.usecas
 import { CreateUserInput, UpdateUserInput } from '@interfaces/http/validators/user.validator';
 import { USE_CASE_SYMBOLS } from '@infrastructure/config/di/symbols';
 import { UserMapper } from '@application/mappers/user.mapper';
+import { sendSuccess } from '@interfaces/http/responses/response.util';
 
 @injectable()
 export class UserController {
@@ -23,23 +24,23 @@ export class UserController {
   public async create(req: Request, res: Response): Promise<void> {
     const dto = req.body as CreateUserInput;
     const user = await this.createUseCase.execute(dto);
-    res.status(201).json({ success: true, data: UserMapper.toDto(user) });
+    sendSuccess(req, res, UserMapper.toDto(user), 201);
   }
 
   public async getById(req: Request, res: Response): Promise<void> {
     const { id } = req.params as { id: string };
     const user = await this.getUseCase.execute(id);
-    res.status(200).json({ success: true, data: UserMapper.toDto(user) });
+    sendSuccess(req, res, UserMapper.toDto(user), 200);
   }
 
   public async me(req: Request, res: Response): Promise<void> {
     const user = await this.getUseCase.execute(req.user!.id);
-    res.status(200).json({ success: true, data: UserMapper.toDto(user) });
+    sendSuccess(req, res, UserMapper.toDto(user), 200);
   }
 
-  public async list(_req: Request, res: Response): Promise<void> {
+  public async list(req: Request, res: Response): Promise<void> {
     const users = await this.listUseCase.execute();
-    res.status(200).json({ success: true, data: UserMapper.toDtoList(users) });
+    sendSuccess(req, res, UserMapper.toDtoList(users), 200);
   }
 
   public async update(req: Request, res: Response): Promise<void> {
@@ -49,7 +50,7 @@ export class UserController {
       delete dto.role;
     }
     const user = await this.updateUseCase.execute(id, dto);
-    res.status(200).json({ success: true, data: UserMapper.toDto(user) });
+    sendSuccess(req, res, UserMapper.toDto(user), 200);
   }
 
   public async delete(req: Request, res: Response): Promise<void> {

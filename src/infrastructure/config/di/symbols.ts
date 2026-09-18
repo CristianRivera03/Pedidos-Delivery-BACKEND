@@ -1,6 +1,8 @@
 export const REPOSITORY_SYMBOLS = {
   UserRepository: Symbol.for('UserRepository'),
   RefreshTokenRepository: Symbol.for('RefreshTokenRepository'),
+  CategoryRepository: Symbol.for('CategoryRepository'),
+  ProductRepository: Symbol.for('ProductRepository'),
 } as const;
 
 export const SERVICE_SYMBOLS = {
@@ -21,4 +23,14 @@ export const USE_CASE_SYMBOLS = {
   RegisterUseCase: Symbol.for('RegisterUseCase'),
   RefreshTokenUseCase: Symbol.for('RefreshTokenUseCase'),
   LogoutUseCase: Symbol.for('LogoutUseCase'),
+  CreateCategoryUseCase: Symbol.for('CreateCategoryUseCase'),
+  GetCategoryUseCase: Symbol.for('GetCategoryUseCase'),
+  ListCategoriesUseCase: Symbol.for('ListCategoriesUseCase'),
+  UpdateCategoryUseCase: Symbol.for('UpdateCategoryUseCase'),
+  DeleteCategoryUseCase: Symbol.for('DeleteCategoryUseCase'),
+  CreateProductUseCase: Symbol.for('CreateProductUseCase'),
+  GetProductUseCase: Symbol.for('GetProductUseCase'),
+  ListProductsUseCase: Symbol.for('ListProductsUseCase'),
+  UpdateProductUseCase: Symbol.for('UpdateProductUseCase'),
+  DeleteProductUseCase: Symbol.for('DeleteProductUseCase'),
 } as const;

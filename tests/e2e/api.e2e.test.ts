@@ -53,6 +53,9 @@ describe('API Endpoints (E2E Test Suite)', () => {
 
       expect(response.status).toBe(201);
       expect(response.body.success).toBe(true);
+      expect(response.body.statusCode).toBe(201);
+      expect(response.body).toHaveProperty('timestamp');
+      expect(response.body).toHaveProperty('path');
       expect(response.body.data).toHaveProperty('token');
       expect(response.body.data).toHaveProperty('refreshToken');
       expect(response.body.data.user).toMatchObject({
@@ -68,13 +71,18 @@ describe('API Endpoints (E2E Test Suite)', () => {
       );
     });
 
-    it('debería retornar 400 si los datos son inválidos', async () => {
+    it('debería retornar 400 si los datos son inválidos con estructura Envelope', async () => {
       const response = await request(app)
         .post('/api/v1/auth/register')
         .send({ email: 'invalido' });
 
       expect(response.status).toBe(400);
       expect(response.body.success).toBe(false);
+      expect(response.body.statusCode).toBe(400);
+      expect(response.body).toHaveProperty('timestamp');
+      expect(response.body).toHaveProperty('path');
+      expect(response.body.error).toHaveProperty('type');
+      expect(response.body.error).toHaveProperty('message');
     });
   });
 
