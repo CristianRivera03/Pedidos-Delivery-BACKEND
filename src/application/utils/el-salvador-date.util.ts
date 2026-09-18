@@ -27,3 +27,8 @@ export function toElSalvadorIsoString(date: Date): string {
 
   return `${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}:${parts.second}.${milliseconds}${EL_SALVADOR_UTC_OFFSET}`;
 }
+
+export function getElSalvadorNowIsoString(): string {
+  return toElSalvadorIsoString(new Date());
+}
+

@@ -1,0 +1,49 @@
+name: CI Backend
+
+on:
+  push:
+    branches: [ main, development ]
+  pull_request:
+    branches: [ main, development ]
+
+jobs:
+  validate:
+    name: Lint, Typecheck, Test & Build
+    runs-on: ubuntu-latest
+
+    env:
+      DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/delivery_db?schema=public"
+      DIRECT_URL: "postgresql://postgres:postgres@localhost:5432/delivery_db?schema=public"
+      JWT_SECRET: "ci-test-jwt-secret-minimum-32-chars-long"
+      PORT: 3000
+      NODE_ENV: test
+      USE_LOCAL_DB: "true"
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: 'package-lock.json'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Run linter
+        run: npm run lint
+
+      - name: Run typecheck
+        run: npm run typecheck
+
+      - name: Run automated tests
+        run: npm run test
+
+      - name: Build backend application
+        run: npm run build

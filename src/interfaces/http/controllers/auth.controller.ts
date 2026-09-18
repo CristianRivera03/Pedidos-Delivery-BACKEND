@@ -8,6 +8,7 @@ import { LogoutUseCase } from '@application/usecases/auth/logout.usecase';
 import { UserMapper } from '@application/mappers/user.mapper';
 import { LoginInput, RefreshTokenInput, RegisterInput } from '@interfaces/http/validators/auth.validator';
 import { USE_CASE_SYMBOLS } from '@infrastructure/config/di/symbols';
+import { sendSuccess } from '@interfaces/http/responses/response.util';
 
 @injectable()
 export class AuthController {
@@ -22,36 +23,34 @@ export class AuthController {
   public async register(req: Request, res: Response): Promise<void> {
     const dto = req.body as RegisterInput;
     const { user, token, refreshToken } = await this.registerUseCase.execute(dto);
-    res
-      .status(201)
-      .json({ success: true, data: { token, refreshToken, user: UserMapper.toDto(user) } });
+    sendSuccess(req, res, { token, refreshToken, user: UserMapper.toDto(user) }, 201);
   }
 
   public async login(req: Request, res: Response): Promise<void> {
     const dto = req.body as LoginInput;
     const { user, token, refreshToken } = await this.loginUseCase.execute(dto);
-    res
-      .status(200)
-      .json({ success: true, data: { token, refreshToken, user: UserMapper.toDto(user) } });
+    sendSuccess(req, res, { token, refreshToken, user: UserMapper.toDto(user) }, 200);
   }
 
   public async refresh(req: Request, res: Response): Promise<void> {
     const { refreshToken } = req.body as RefreshTokenInput;
     const result = await this.refreshTokenUseCase.execute(refreshToken);
-    res.status(200).json({
-      success: true,
-      data: {
+    sendSuccess(
+      req,
+      res,
+      {
         token: result.token,
         refreshToken: result.refreshToken,
         user: UserMapper.toDto(result.user),
       },
-    });
+      200,
+    );
   }
 
   public async logout(req: Request, res: Response): Promise<void> {
     const { refreshToken } = req.body as RefreshTokenInput;
     await this.logoutUseCase.execute(refreshToken);
-    res.status(200).json({ success: true, data: { message: 'Logged out successfully' } });
+    sendSuccess(req, res, { message: 'Logged out successfully' }, 200);
   }
 }
 
