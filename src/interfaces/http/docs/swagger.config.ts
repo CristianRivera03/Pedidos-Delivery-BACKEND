@@ -143,6 +143,72 @@ const swaggerOptions = {
             },
           },
         },
+        Category: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', format: 'uuid', example: '550e8400-e29b-41d4-a716-446655440000' },
+            name: { type: 'string', example: 'Bebidas' },
+            description: { type: 'string', nullable: true, example: 'Bebidas frías y calientes' },
+            isActive: { type: 'boolean', example: true },
+            createdAt: { type: 'string', example: '17/09/2026, 09:37:00 PM' },
+            updatedAt: { type: 'string', example: '17/09/2026, 09:37:00 PM' },
+          },
+        },
+        CreateCategoryRequest: {
+          type: 'object',
+          required: ['name'],
+          properties: {
+            name: { type: 'string', minLength: 1, maxLength: 100, example: 'Bebidas' },
+            description: { type: 'string', maxLength: 255, nullable: true, example: 'Bebidas frías y calientes' },
+          },
+        },
+        UpdateCategoryRequest: {
+          type: 'object',
+          properties: {
+            name: { type: 'string', minLength: 1, maxLength: 100, example: 'Bebidas Actualizadas' },
+            description: { type: 'string', maxLength: 255, nullable: true, example: 'Nueva descripción' },
+            isActive: { type: 'boolean', example: true },
+          },
+        },
+        Product: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', format: 'uuid', example: '550e8400-e29b-41d4-a716-446655440001' },
+            categoryId: { type: 'string', format: 'uuid', example: '550e8400-e29b-41d4-a716-446655440000' },
+            name: { type: 'string', example: 'Pupusa de Queso' },
+            description: { type: 'string', nullable: true, example: 'Tradicional pupusa de queso' },
+            price: { type: 'number', minimum: 0.01, example: 1.25 },
+            stock: { type: 'integer', minimum: 0, example: 50 },
+            imageUrl: { type: 'string', format: 'uri', nullable: true, example: 'https://example.com/pupusa.jpg' },
+            isActive: { type: 'boolean', example: true },
+            createdAt: { type: 'string', example: '17/09/2026, 09:37:00 PM' },
+            updatedAt: { type: 'string', example: '17/09/2026, 09:37:00 PM' },
+          },
+        },
+        CreateProductRequest: {
+          type: 'object',
+          required: ['categoryId', 'name', 'price', 'stock'],
+          properties: {
+            categoryId: { type: 'string', format: 'uuid', example: '550e8400-e29b-41d4-a716-446655440000' },
+            name: { type: 'string', minLength: 1, maxLength: 150, example: 'Pupusa de Queso' },
+            description: { type: 'string', maxLength: 500, nullable: true, example: 'Tradicional pupusa' },
+            price: { type: 'number', minimum: 0.01, example: 1.25 },
+            stock: { type: 'integer', minimum: 0, example: 50 },
+            imageUrl: { type: 'string', format: 'uri', nullable: true, example: 'https://example.com/pupusa.jpg' },
+          },
+        },
+        UpdateProductRequest: {
+          type: 'object',
+          properties: {
+            categoryId: { type: 'string', format: 'uuid' },
+            name: { type: 'string', minLength: 1, maxLength: 150 },
+            description: { type: 'string', maxLength: 500, nullable: true },
+            price: { type: 'number', minimum: 0.01 },
+            stock: { type: 'integer', minimum: 0 },
+            imageUrl: { type: 'string', format: 'uri', nullable: true },
+            isActive: { type: 'boolean' },
+          },
+        },
       },
       responses: {
         Unauthorized: {
@@ -204,8 +270,17 @@ const swaggerOptions = {
         name: 'Users',
         description: 'Gestión de usuarios',
       },
+      {
+        name: 'Categories',
+        description: 'Gestión y catálogo de categorías de productos',
+      },
+      {
+        name: 'Products',
+        description: 'Gestión y catálogo de productos (menú)',
+      },
     ],
   },
+
   apis: [
     `${routesDir}/*.ts`,
     `${routesDir}/*.js`,
