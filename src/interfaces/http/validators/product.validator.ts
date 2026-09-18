@@ -14,8 +14,21 @@ export const listProductsQuerySchema = z.object({
       .enum(['true', 'false'])
       .optional()
       .transform((val) => (val !== undefined ? val === 'true' : undefined)),
+    all: z
+      .enum(['true', 'false'])
+      .optional()
+      .transform((val) => val === 'true'),
+    page: z
+      .string()
+      .optional()
+      .transform((val) => (val ? Math.max(1, parseInt(val, 10)) : 1)),
+    limit: z
+      .string()
+      .optional()
+      .transform((val) => (val ? Math.min(100, Math.max(1, parseInt(val, 10))) : 10)),
   }),
 });
+
 
 export const createProductSchema = z.object({
   body: z.object({

@@ -501,8 +501,89 @@ describe('Catalog & Products E2E Test Suite (RF-03 & RF-09)', () => {
 
         expect(res.status).toBe(200);
         expect(res.body.data).toEqual([]);
+        expect(res.body.pagination).toEqual({
+          page: 1,
+          limit: 10,
+          totalItems: 0,
+          totalPages: 0,
+          hasNextPage: false,
+          hasPreviousPage: false,
+        });
+      });
+
+      it('soporta paginación con ?page= y ?limit= con metadata completa (200)', async () => {
+        for (let i = 1; i <= 5; i++) {
+          await request(app)
+            .post('/api/v1/products')
+            .set('Authorization', `Bearer ${adminToken}`)
+            .send({ categoryId, name: `Producto Pag ${i}`, price: 1.0 + i, stock: 10 });
+        }
+
+        // Página 1 con límite 2
+        const resPage1 = await request(app).get('/api/v1/products?page=1&limit=2');
+        expect(resPage1.status).toBe(200);
+        expect(resPage1.body.data.length).toBe(2);
+        expect(resPage1.body.pagination).toEqual({
+          page: 1,
+          limit: 2,
+          totalItems: 5,
+          totalPages: 3,
+          hasNextPage: true,
+          hasPreviousPage: false,
+        });
+
+        // Página 3 (última página, 1 elemento)
+        const resPage3 = await request(app).get('/api/v1/products?page=3&limit=2');
+        expect(resPage3.status).toBe(200);
+        expect(resPage3.body.data.length).toBe(1);
+        expect(resPage3.body.pagination.page).toBe(3);
+        expect(resPage3.body.pagination.hasNextPage).toBe(false);
+        expect(resPage3.body.pagination.hasPreviousPage).toBe(true);
+      });
+
+      it('devuelve todos los productos sin paginación con ?all=true (200)', async () => {
+        for (let i = 1; i <= 15; i++) {
+          await request(app)
+            .post('/api/v1/products')
+            .set('Authorization', `Bearer ${adminToken}`)
+            .send({ categoryId, name: `Producto All ${i}`, price: 1.0 + i, stock: 10 });
+        }
+
+        const res = await request(app).get('/api/v1/products?all=true');
+
+        expect(res.status).toBe(200);
+        expect(res.body.success).toBe(true);
+        // Devuelve todos (> el límite default de 10)
+        expect(res.body.data.length).toBe(15);
+        // No debe incluir metadata de paginación
+        expect(res.body.pagination).toBeUndefined();
+      });
+
+      it('combina ?all=true con ?search= (200)', async () => {
+        await request(app)
+          .post('/api/v1/products')
+          .set('Authorization', `Bearer ${adminToken}`)
+          .send({ categoryId, name: 'Combo Especial', price: 8.0, stock: 20 });
+
+        await request(app)
+          .post('/api/v1/products')
+          .set('Authorization', `Bearer ${adminToken}`)
+          .send({ categoryId, name: 'Combo Familiar', price: 12.0, stock: 10 });
+
+        await request(app)
+          .post('/api/v1/products')
+          .set('Authorization', `Bearer ${adminToken}`)
+          .send({ categoryId, name: 'Ensalada César', price: 5.0, stock: 15 });
+
+        const res = await request(app).get('/api/v1/products?all=true&search=combo');
+
+        expect(res.status).toBe(200);
+        expect(res.body.data.length).toBe(2);
+        expect(res.body.pagination).toBeUndefined();
+        expect(res.body.data.every((p: { name: string }) => p.name.toLowerCase().includes('combo'))).toBe(true);
       });
     });
+
 
     // ── GET BY ID ───────────────────────────────────────────────────────────────
     describe('GET /products/:id', () => {

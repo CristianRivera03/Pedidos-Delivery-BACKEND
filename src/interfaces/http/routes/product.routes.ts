@@ -44,9 +44,27 @@ export function buildProductRoutes(): Router {
    *         schema:
    *           type: boolean
    *         description: Filtrar solo productos activos (por defecto true)
+   *       - in: query
+   *         name: all
+   *         schema:
+   *           type: boolean
+   *           default: false
+   *         description: Si es true, devuelve todos los productos sin paginación (útil para selects/dropdowns)
+   *       - in: query
+   *         name: page
+   *         schema:
+   *           type: integer
+   *           default: 1
+   *         description: Número de página
+   *       - in: query
+   *         name: limit
+   *         schema:
+   *           type: integer
+   *           default: 10
+   *         description: Límite de elementos por página (máx 100)
    *     responses:
    *       200:
-   *         description: Lista de productos encontrados
+   *         description: Lista de productos encontrados con metadata de paginación
    *         content:
    *           application/json:
    *             schema:
@@ -55,10 +73,28 @@ export function buildProductRoutes(): Router {
    *                 success:
    *                   type: boolean
    *                   example: true
+   *                 statusCode:
+   *                   type: number
+   *                   example: 200
    *                 data:
    *                   type: array
    *                   items:
    *                     $ref: '#/components/schemas/Product'
+   *                 pagination:
+   *                   type: object
+   *                   properties:
+   *                     page:
+   *                       type: integer
+   *                     limit:
+   *                       type: integer
+   *                     totalItems:
+   *                       type: integer
+   *                     totalPages:
+   *                       type: integer
+   *                     hasNextPage:
+   *                       type: boolean
+   *                     hasPreviousPage:
+   *                       type: boolean
    *       500:
    *         $ref: '#/components/responses/InternalServerError'
    *   post:

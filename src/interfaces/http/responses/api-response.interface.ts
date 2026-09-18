@@ -1,9 +1,19 @@
+export interface PaginationMeta {
+  page: number;
+  limit: number;
+  totalItems: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+}
+
 export interface ApiSuccessResponse<T> {
   success: true;
   statusCode: number;
   data: T;
   timestamp: string;
   path: string;
+  pagination?: PaginationMeta;
 }
 
 export interface ApiErrorDetail {
@@ -21,3 +31,4 @@ export interface ApiErrorResponse {
 }
 
 export type ApiResponse<T> = ApiSuccessResponse<T> | ApiErrorResponse;
+

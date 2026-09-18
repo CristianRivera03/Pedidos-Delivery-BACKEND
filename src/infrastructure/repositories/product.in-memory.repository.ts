@@ -29,6 +29,28 @@ export class ProductInMemoryRepository implements ProductRepository {
     return result.sort((a, b) => b.getCreatedAt().getTime() - a.getCreatedAt().getTime());
   }
 
+  public async findPaginated(filter?: ProductFilter): Promise<{ items: Product[]; total: number; page: number; limit: number }> {
+    const allItems = await this.findAll(filter);
+
+    // Si se solicitan todos los registros sin paginación
+    if (filter?.all) {
+      return { items: allItems, total: allItems.length, page: 1, limit: allItems.length };
+    }
+
+    const page = filter?.page && filter.page > 0 ? filter.page : 1;
+    const limit = filter?.limit && filter.limit > 0 ? filter.limit : 10;
+    const startIndex = (page - 1) * limit;
+    const items = allItems.slice(startIndex, startIndex + limit);
+
+    return {
+      items,
+      total: allItems.length,
+      page,
+      limit,
+    };
+  }
+
+
   public async create(product: Product): Promise<Product> {
     this.products.set(product.getId().getValue(), product);
     return product;
