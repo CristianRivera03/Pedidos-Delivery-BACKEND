@@ -27,6 +27,9 @@ export class ProductController {
 
   public async list(req: Request, res: Response): Promise<void> {
     const query = req.query as unknown as ListProductsQuery;
+    // Manejo robusto: req.query puede tener 'true' (string) o true (boolean)
+    // dependiendo de si el middleware Zod ya transformó el valor o no.
+    const fetchAll = query.all === true || (query.all as unknown) === 'true';
     const page = query.page !== undefined ? Number(query.page) : 1;
     const limit = query.limit !== undefined ? Number(query.limit) : 10;
 
@@ -36,7 +39,14 @@ export class ProductController {
       activeOnly: query.activeOnly,
       page,
       limit,
+      all: fetchAll,
     });
+
+    // Si se solicitó ?all=true, no se incluye paginación en la respuesta
+    if (fetchAll) {
+      sendSuccess(req, res, ProductMapper.toDtoList(result.items), 200);
+      return;
+    }
 
     const totalPages = Math.ceil(result.total / limit);
 

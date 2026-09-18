@@ -42,6 +42,12 @@ export class ProductPrismaRepository implements ProductRepository {
   }
 
   public async findPaginated(filter?: ProductFilter): Promise<{ items: Product[]; total: number; page: number; limit: number }> {
+    // Si se solicitan todos los registros sin paginación
+    if (filter?.all) {
+      const items = await this.findAll(filter);
+      return { items, total: items.length, page: 1, limit: items.length };
+    }
+
     const where: Prisma.ProductWhereInput = {
       deletedAt: null,
     };

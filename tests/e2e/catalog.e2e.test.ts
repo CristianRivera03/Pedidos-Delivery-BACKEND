@@ -540,6 +540,48 @@ describe('Catalog & Products E2E Test Suite (RF-03 & RF-09)', () => {
         expect(resPage3.body.pagination.hasNextPage).toBe(false);
         expect(resPage3.body.pagination.hasPreviousPage).toBe(true);
       });
+
+      it('devuelve todos los productos sin paginación con ?all=true (200)', async () => {
+        for (let i = 1; i <= 15; i++) {
+          await request(app)
+            .post('/api/v1/products')
+            .set('Authorization', `Bearer ${adminToken}`)
+            .send({ categoryId, name: `Producto All ${i}`, price: 1.0 + i, stock: 10 });
+        }
+
+        const res = await request(app).get('/api/v1/products?all=true');
+
+        expect(res.status).toBe(200);
+        expect(res.body.success).toBe(true);
+        // Devuelve todos (> el límite default de 10)
+        expect(res.body.data.length).toBe(15);
+        // No debe incluir metadata de paginación
+        expect(res.body.pagination).toBeUndefined();
+      });
+
+      it('combina ?all=true con ?search= (200)', async () => {
+        await request(app)
+          .post('/api/v1/products')
+          .set('Authorization', `Bearer ${adminToken}`)
+          .send({ categoryId, name: 'Combo Especial', price: 8.0, stock: 20 });
+
+        await request(app)
+          .post('/api/v1/products')
+          .set('Authorization', `Bearer ${adminToken}`)
+          .send({ categoryId, name: 'Combo Familiar', price: 12.0, stock: 10 });
+
+        await request(app)
+          .post('/api/v1/products')
+          .set('Authorization', `Bearer ${adminToken}`)
+          .send({ categoryId, name: 'Ensalada César', price: 5.0, stock: 15 });
+
+        const res = await request(app).get('/api/v1/products?all=true&search=combo');
+
+        expect(res.status).toBe(200);
+        expect(res.body.data.length).toBe(2);
+        expect(res.body.pagination).toBeUndefined();
+        expect(res.body.data.every((p: { name: string }) => p.name.toLowerCase().includes('combo'))).toBe(true);
+      });
     });
 
 

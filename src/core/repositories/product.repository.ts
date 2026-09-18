@@ -6,6 +6,8 @@ export interface ProductFilter {
   activeOnly?: boolean;
   page?: number;
   limit?: number;
+  /** Si es true, devuelve todos los registros sin paginación */
+  all?: boolean;
 }
 
 export interface PaginatedResult<T> {

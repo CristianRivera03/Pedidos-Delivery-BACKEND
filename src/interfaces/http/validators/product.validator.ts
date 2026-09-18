@@ -14,6 +14,10 @@ export const listProductsQuerySchema = z.object({
       .enum(['true', 'false'])
       .optional()
       .transform((val) => (val !== undefined ? val === 'true' : undefined)),
+    all: z
+      .enum(['true', 'false'])
+      .optional()
+      .transform((val) => val === 'true'),
     page: z
       .string()
       .optional()

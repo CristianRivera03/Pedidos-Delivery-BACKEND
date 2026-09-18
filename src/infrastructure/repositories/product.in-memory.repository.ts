@@ -30,15 +30,21 @@ export class ProductInMemoryRepository implements ProductRepository {
   }
 
   public async findPaginated(filter?: ProductFilter): Promise<{ items: Product[]; total: number; page: number; limit: number }> {
-    const all = await this.findAll(filter);
+    const allItems = await this.findAll(filter);
+
+    // Si se solicitan todos los registros sin paginación
+    if (filter?.all) {
+      return { items: allItems, total: allItems.length, page: 1, limit: allItems.length };
+    }
+
     const page = filter?.page && filter.page > 0 ? filter.page : 1;
     const limit = filter?.limit && filter.limit > 0 ? filter.limit : 10;
     const startIndex = (page - 1) * limit;
-    const items = all.slice(startIndex, startIndex + limit);
+    const items = allItems.slice(startIndex, startIndex + limit);
 
     return {
       items,
-      total: all.length,
+      total: allItems.length,
       page,
       limit,
     };

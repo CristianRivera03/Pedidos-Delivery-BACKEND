@@ -45,6 +45,12 @@ export function buildProductRoutes(): Router {
    *           type: boolean
    *         description: Filtrar solo productos activos (por defecto true)
    *       - in: query
+   *         name: all
+   *         schema:
+   *           type: boolean
+   *           default: false
+   *         description: Si es true, devuelve todos los productos sin paginación (útil para selects/dropdowns)
+   *       - in: query
    *         name: page
    *         schema:
    *           type: integer
