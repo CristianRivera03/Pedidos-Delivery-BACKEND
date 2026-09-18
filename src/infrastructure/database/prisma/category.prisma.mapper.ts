@@ -9,6 +9,7 @@ export class CategoryPrismaMapper {
       name: raw.name,
       description: raw.description,
       isActive: raw.isActive,
+      deletedAt: raw.deletedAt,
       createdAt: raw.createdAt,
       updatedAt: raw.updatedAt,
     });
@@ -20,6 +21,7 @@ export class CategoryPrismaMapper {
       name: category.getName(),
       description: category.getDescription(),
       isActive: category.isActive(),
+      deletedAt: category.getDeletedAt(),
     };
   }
 
@@ -28,6 +30,8 @@ export class CategoryPrismaMapper {
       name: category.getName(),
       description: category.getDescription(),
       isActive: category.isActive(),
+      deletedAt: category.getDeletedAt(),
     };
   }
 }
+

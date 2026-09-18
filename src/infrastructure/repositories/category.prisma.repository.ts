@@ -12,17 +12,24 @@ export class CategoryPrismaRepository implements CategoryRepository {
   ) {}
 
   public async findById(id: string): Promise<Category | null> {
-    const raw = await this.prisma.category.findUnique({ where: { id } });
+    const raw = await this.prisma.category.findFirst({
+      where: { id, deletedAt: null },
+    });
     return raw ? CategoryPrismaMapper.toDomain(raw) : null;
   }
 
   public async findByName(name: string): Promise<Category | null> {
-    const raw = await this.prisma.category.findUnique({ where: { name } });
+    const raw = await this.prisma.category.findFirst({
+      where: { name, deletedAt: null },
+    });
     return raw ? CategoryPrismaMapper.toDomain(raw) : null;
   }
 
   public async findAll(filter?: { activeOnly?: boolean }): Promise<Category[]> {
-    const where = filter?.activeOnly ? { isActive: true } : undefined;
+    const where: { isActive?: boolean; deletedAt: null } = { deletedAt: null };
+    if (filter?.activeOnly) {
+      where.isActive = true;
+    }
     const raws = await this.prisma.category.findMany({
       where,
       orderBy: { name: 'asc' },
@@ -46,6 +53,13 @@ export class CategoryPrismaRepository implements CategoryRepository {
   }
 
   public async delete(id: string): Promise<void> {
-    await this.prisma.category.delete({ where: { id } });
+    await this.prisma.category.update({
+      where: { id },
+      data: {
+        deletedAt: new Date(),
+        isActive: false,
+      },
+    });
   }
 }
+

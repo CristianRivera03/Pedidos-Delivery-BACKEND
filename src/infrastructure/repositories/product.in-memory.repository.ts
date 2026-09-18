@@ -5,11 +5,15 @@ export class ProductInMemoryRepository implements ProductRepository {
   private products: Map<string, Product> = new Map();
 
   public async findById(id: string): Promise<Product | null> {
-    return this.products.get(id) ?? null;
+    const product = this.products.get(id);
+    if (!product || product.isDeleted()) {
+      return null;
+    }
+    return product;
   }
 
   public async findAll(filter?: ProductFilter): Promise<Product[]> {
-    let result = Array.from(this.products.values());
+    let result = Array.from(this.products.values()).filter((p) => !p.isDeleted());
 
     if (filter?.activeOnly) {
       result = result.filter((p) => p.isActive());
@@ -36,10 +40,14 @@ export class ProductInMemoryRepository implements ProductRepository {
   }
 
   public async delete(id: string): Promise<void> {
-    this.products.delete(id);
+    const product = this.products.get(id);
+    if (product) {
+      product.softDelete();
+    }
   }
 
   public clear(): void {
     this.products.clear();
   }
 }
+

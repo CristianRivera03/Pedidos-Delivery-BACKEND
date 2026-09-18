@@ -13,6 +13,7 @@ export class ProductPrismaMapper {
       stock: raw.stock,
       imageUrl: raw.imageUrl,
       isActive: raw.isActive,
+      deletedAt: raw.deletedAt,
       createdAt: raw.createdAt,
       updatedAt: raw.updatedAt,
     });
@@ -27,6 +28,7 @@ export class ProductPrismaMapper {
       stock: product.getStock(),
       imageUrl: product.getImageUrl(),
       isActive: product.isActive(),
+      deletedAt: product.getDeletedAt(),
       category: {
         connect: { id: product.getCategoryId().getValue() },
       },
@@ -41,9 +43,11 @@ export class ProductPrismaMapper {
       stock: product.getStock(),
       imageUrl: product.getImageUrl(),
       isActive: product.isActive(),
+      deletedAt: product.getDeletedAt(),
       category: {
         connect: { id: product.getCategoryId().getValue() },
       },
     };
   }
 }
+

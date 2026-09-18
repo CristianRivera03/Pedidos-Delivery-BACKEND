@@ -5,12 +5,16 @@ export class CategoryInMemoryRepository implements CategoryRepository {
   private categories: Map<string, Category> = new Map();
 
   public async findById(id: string): Promise<Category | null> {
-    return this.categories.get(id) ?? null;
+    const category = this.categories.get(id);
+    if (!category || category.isDeleted()) {
+      return null;
+    }
+    return category;
   }
 
   public async findByName(name: string): Promise<Category | null> {
     for (const category of this.categories.values()) {
-      if (category.getName().toLowerCase() === name.toLowerCase()) {
+      if (!category.isDeleted() && category.getName().toLowerCase() === name.toLowerCase()) {
         return category;
       }
     }
@@ -18,7 +22,7 @@ export class CategoryInMemoryRepository implements CategoryRepository {
   }
 
   public async findAll(filter?: { activeOnly?: boolean }): Promise<Category[]> {
-    let result = Array.from(this.categories.values());
+    let result = Array.from(this.categories.values()).filter((c) => !c.isDeleted());
     if (filter?.activeOnly) {
       result = result.filter((c) => c.isActive());
     }
@@ -36,10 +40,14 @@ export class CategoryInMemoryRepository implements CategoryRepository {
   }
 
   public async delete(id: string): Promise<void> {
-    this.categories.delete(id);
+    const category = this.categories.get(id);
+    if (category) {
+      category.softDelete();
+    }
   }
 
   public clear(): void {
     this.categories.clear();
   }
 }
+

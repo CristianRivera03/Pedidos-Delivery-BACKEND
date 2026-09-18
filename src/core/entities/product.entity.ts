@@ -10,6 +10,7 @@ export interface ProductProps {
   stock: number;
   imageUrl?: string | null;
   isActive: boolean;
+  deletedAt?: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -23,6 +24,7 @@ export class Product {
   private _stock: number;
   private _imageUrl: string | null;
   private _isActive: boolean;
+  private _deletedAt: Date | null;
   private readonly _createdAt: Date;
   private _updatedAt: Date;
 
@@ -39,6 +41,7 @@ export class Product {
     this._stock = Number(props.stock);
     this._imageUrl = props.imageUrl?.trim() || null;
     this._isActive = props.isActive;
+    this._deletedAt = props.deletedAt ?? null;
     this._createdAt = props.createdAt;
     this._updatedAt = props.updatedAt;
   }
@@ -61,6 +64,7 @@ export class Product {
       stock: props.stock,
       imageUrl: props.imageUrl,
       isActive: true,
+      deletedAt: null,
       createdAt: now,
       updatedAt: now,
     });
@@ -136,6 +140,23 @@ export class Product {
     this._updatedAt = new Date();
   }
 
+  public softDelete(): void {
+    const now = new Date();
+    this._deletedAt = now;
+    this._isActive = false;
+    this._updatedAt = now;
+  }
+
+  public restore(): void {
+    this._deletedAt = null;
+    this._isActive = true;
+    this._updatedAt = new Date();
+  }
+
+  public isDeleted(): boolean {
+    return this._deletedAt !== null;
+  }
+
   public getId(): Uuid {
     return this._id;
   }
@@ -168,6 +189,10 @@ export class Product {
     return this._isActive;
   }
 
+  public getDeletedAt(): Date | null {
+    return this._deletedAt;
+  }
+
   public getCreatedAt(): Date {
     return this._createdAt;
   }
@@ -176,3 +201,4 @@ export class Product {
     return this._updatedAt;
   }
 }
+

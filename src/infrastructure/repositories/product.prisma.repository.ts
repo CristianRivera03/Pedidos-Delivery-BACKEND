@@ -13,12 +13,16 @@ export class ProductPrismaRepository implements ProductRepository {
   ) {}
 
   public async findById(id: string): Promise<Product | null> {
-    const raw = await this.prisma.product.findUnique({ where: { id } });
+    const raw = await this.prisma.product.findFirst({
+      where: { id, deletedAt: null },
+    });
     return raw ? ProductPrismaMapper.toDomain(raw) : null;
   }
 
   public async findAll(filter?: ProductFilter): Promise<Product[]> {
-    const where: Prisma.ProductWhereInput = {};
+    const where: Prisma.ProductWhereInput = {
+      deletedAt: null,
+    };
 
     if (filter?.activeOnly) {
       where.isActive = true;
@@ -53,6 +57,13 @@ export class ProductPrismaRepository implements ProductRepository {
   }
 
   public async delete(id: string): Promise<void> {
-    await this.prisma.product.delete({ where: { id } });
+    await this.prisma.product.update({
+      where: { id },
+      data: {
+        deletedAt: new Date(),
+        isActive: false,
+      },
+    });
   }
 }
+

@@ -66,4 +66,30 @@ describe('Product Entity (Domain Validation)', () => {
       product.adjustStock(-1);
     }).toThrow(ValidationError);
   });
+
+  it('debería soportar soft delete y restore correctamente', () => {
+    const product = Product.create({
+      categoryId,
+      name: 'Pupusa Revuelta',
+      price: 1.25,
+      stock: 10,
+    });
+
+    expect(product.isDeleted()).toBe(false);
+    expect(product.getDeletedAt()).toBeNull();
+    expect(product.isActive()).toBe(true);
+
+    product.softDelete();
+
+    expect(product.isDeleted()).toBe(true);
+    expect(product.getDeletedAt()).toBeInstanceOf(Date);
+    expect(product.isActive()).toBe(false);
+
+    product.restore();
+
+    expect(product.isDeleted()).toBe(false);
+    expect(product.getDeletedAt()).toBeNull();
+    expect(product.isActive()).toBe(true);
+  });
 });
+
