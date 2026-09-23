@@ -10,9 +10,23 @@ import { RegisterUseCase } from '@application/usecases/auth/register.usecase';
 import { RefreshTokenUseCase } from '@application/usecases/auth/refresh-token.usecase';
 import { LogoutUseCase } from '@application/usecases/auth/logout.usecase';
 
+import { CreateCategoryUseCase } from '@application/usecases/category/create-category.usecase';
+import { GetCategoryUseCase } from '@application/usecases/category/get-category.usecase';
+import { ListCategoriesUseCase } from '@application/usecases/category/list-categories.usecase';
+import { UpdateCategoryUseCase } from '@application/usecases/category/update-category.usecase';
+import { DeleteCategoryUseCase } from '@application/usecases/category/delete-category.usecase';
+
+import { CreateProductUseCase } from '@application/usecases/product/create-product.usecase';
+import { GetProductUseCase } from '@application/usecases/product/get-product.usecase';
+import { ListProductsUseCase } from '@application/usecases/product/list-products.usecase';
+import { UpdateProductUseCase } from '@application/usecases/product/update-product.usecase';
+import { DeleteProductUseCase } from '@application/usecases/product/delete-product.usecase';
+
 import { PrismaClient } from '@infrastructure/database/prisma/prisma.client';
 import { UserPrismaRepository } from '@infrastructure/repositories/user.prisma.repository';
 import { RefreshTokenPrismaRepository } from '@infrastructure/repositories/refresh-token.prisma.repository';
+import { CategoryPrismaRepository } from '@infrastructure/repositories/category.prisma.repository';
+import { ProductPrismaRepository } from '@infrastructure/repositories/product.prisma.repository';
 import { BcryptHashService } from '@infrastructure/services/bcrypt.hash.service';
 import { JwtTokenService } from '@infrastructure/services/jwt.token.service';
 import { CryptoRefreshTokenService } from '@infrastructure/services/crypto.refresh-token.service';
@@ -45,6 +59,13 @@ export function registerDependencies(): void {
     container.registerSingleton(REPOSITORY_SYMBOLS.RefreshTokenRepository, RefreshTokenPrismaRepository);
   }
 
+  if (!container.isRegistered(REPOSITORY_SYMBOLS.CategoryRepository)) {
+    container.registerSingleton(REPOSITORY_SYMBOLS.CategoryRepository, CategoryPrismaRepository);
+  }
+  if (!container.isRegistered(REPOSITORY_SYMBOLS.ProductRepository)) {
+    container.registerSingleton(REPOSITORY_SYMBOLS.ProductRepository, ProductPrismaRepository);
+  }
+
   if (!container.isRegistered(USE_CASE_SYMBOLS.CreateUserUseCase)) {
     container.registerSingleton(USE_CASE_SYMBOLS.CreateUserUseCase, CreateUserUseCase);
   }
@@ -71,6 +92,38 @@ export function registerDependencies(): void {
   }
   if (!container.isRegistered(USE_CASE_SYMBOLS.LogoutUseCase)) {
     container.registerSingleton(USE_CASE_SYMBOLS.LogoutUseCase, LogoutUseCase);
+  }
+
+  if (!container.isRegistered(USE_CASE_SYMBOLS.CreateCategoryUseCase)) {
+    container.registerSingleton(USE_CASE_SYMBOLS.CreateCategoryUseCase, CreateCategoryUseCase);
+  }
+  if (!container.isRegistered(USE_CASE_SYMBOLS.GetCategoryUseCase)) {
+    container.registerSingleton(USE_CASE_SYMBOLS.GetCategoryUseCase, GetCategoryUseCase);
+  }
+  if (!container.isRegistered(USE_CASE_SYMBOLS.ListCategoriesUseCase)) {
+    container.registerSingleton(USE_CASE_SYMBOLS.ListCategoriesUseCase, ListCategoriesUseCase);
+  }
+  if (!container.isRegistered(USE_CASE_SYMBOLS.UpdateCategoryUseCase)) {
+    container.registerSingleton(USE_CASE_SYMBOLS.UpdateCategoryUseCase, UpdateCategoryUseCase);
+  }
+  if (!container.isRegistered(USE_CASE_SYMBOLS.DeleteCategoryUseCase)) {
+    container.registerSingleton(USE_CASE_SYMBOLS.DeleteCategoryUseCase, DeleteCategoryUseCase);
+  }
+
+  if (!container.isRegistered(USE_CASE_SYMBOLS.CreateProductUseCase)) {
+    container.registerSingleton(USE_CASE_SYMBOLS.CreateProductUseCase, CreateProductUseCase);
+  }
+  if (!container.isRegistered(USE_CASE_SYMBOLS.GetProductUseCase)) {
+    container.registerSingleton(USE_CASE_SYMBOLS.GetProductUseCase, GetProductUseCase);
+  }
+  if (!container.isRegistered(USE_CASE_SYMBOLS.ListProductsUseCase)) {
+    container.registerSingleton(USE_CASE_SYMBOLS.ListProductsUseCase, ListProductsUseCase);
+  }
+  if (!container.isRegistered(USE_CASE_SYMBOLS.UpdateProductUseCase)) {
+    container.registerSingleton(USE_CASE_SYMBOLS.UpdateProductUseCase, UpdateProductUseCase);
+  }
+  if (!container.isRegistered(USE_CASE_SYMBOLS.DeleteProductUseCase)) {
+    container.registerSingleton(USE_CASE_SYMBOLS.DeleteProductUseCase, DeleteProductUseCase);
   }
 }
 
