@@ -22,15 +22,22 @@ import { ListProductsUseCase } from '@application/usecases/product/list-products
 import { UpdateProductUseCase } from '@application/usecases/product/update-product.usecase';
 import { DeleteProductUseCase } from '@application/usecases/product/delete-product.usecase';
 
+import { CreateOrderUseCase } from '@application/usecases/order/create-order.usecase';
+import { ListOrdersUseCase } from '@application/usecases/order/list-orders.usecase';
+import { GetOrderUseCase } from '@application/usecases/order/get-order.usecase';
+import { UpdateOrderStatusUseCase } from '@application/usecases/order/update-order-status.usecase';
+
 import { PrismaClient } from '@infrastructure/database/prisma/prisma.client';
 import { UserPrismaRepository } from '@infrastructure/repositories/user.prisma.repository';
 import { RefreshTokenPrismaRepository } from '@infrastructure/repositories/refresh-token.prisma.repository';
 import { CategoryPrismaRepository } from '@infrastructure/repositories/category.prisma.repository';
 import { ProductPrismaRepository } from '@infrastructure/repositories/product.prisma.repository';
+import { OrderPrismaRepository } from '@infrastructure/repositories/order.prisma.repository';
 import { BcryptHashService } from '@infrastructure/services/bcrypt.hash.service';
 import { JwtTokenService } from '@infrastructure/services/jwt.token.service';
 import { CryptoRefreshTokenService } from '@infrastructure/services/crypto.refresh-token.service';
 import { PinoLoggerService } from '@infrastructure/services/pino.logger.service';
+import { FakePaymentService } from '@infrastructure/services/fake-payment.service';
 
 import { REPOSITORY_SYMBOLS, SERVICE_SYMBOLS, USE_CASE_SYMBOLS } from './symbols';
 
@@ -51,6 +58,9 @@ export function registerDependencies(): void {
   if (!container.isRegistered(SERVICE_SYMBOLS.LoggerService)) {
     container.registerSingleton(SERVICE_SYMBOLS.LoggerService, PinoLoggerService);
   }
+  if (!container.isRegistered(SERVICE_SYMBOLS.PaymentService)) {
+    container.registerSingleton(SERVICE_SYMBOLS.PaymentService, FakePaymentService);
+  }
 
   if (!container.isRegistered(REPOSITORY_SYMBOLS.UserRepository)) {
     container.registerSingleton(REPOSITORY_SYMBOLS.UserRepository, UserPrismaRepository);
@@ -64,6 +74,9 @@ export function registerDependencies(): void {
   }
   if (!container.isRegistered(REPOSITORY_SYMBOLS.ProductRepository)) {
     container.registerSingleton(REPOSITORY_SYMBOLS.ProductRepository, ProductPrismaRepository);
+  }
+  if (!container.isRegistered(REPOSITORY_SYMBOLS.OrderRepository)) {
+    container.registerSingleton(REPOSITORY_SYMBOLS.OrderRepository, OrderPrismaRepository);
   }
 
   if (!container.isRegistered(USE_CASE_SYMBOLS.CreateUserUseCase)) {
@@ -124,6 +137,19 @@ export function registerDependencies(): void {
   }
   if (!container.isRegistered(USE_CASE_SYMBOLS.DeleteProductUseCase)) {
     container.registerSingleton(USE_CASE_SYMBOLS.DeleteProductUseCase, DeleteProductUseCase);
+  }
+
+  if (!container.isRegistered(USE_CASE_SYMBOLS.CreateOrderUseCase)) {
+    container.registerSingleton(USE_CASE_SYMBOLS.CreateOrderUseCase, CreateOrderUseCase);
+  }
+  if (!container.isRegistered(USE_CASE_SYMBOLS.ListOrdersUseCase)) {
+    container.registerSingleton(USE_CASE_SYMBOLS.ListOrdersUseCase, ListOrdersUseCase);
+  }
+  if (!container.isRegistered(USE_CASE_SYMBOLS.GetOrderUseCase)) {
+    container.registerSingleton(USE_CASE_SYMBOLS.GetOrderUseCase, GetOrderUseCase);
+  }
+  if (!container.isRegistered(USE_CASE_SYMBOLS.UpdateOrderStatusUseCase)) {
+    container.registerSingleton(USE_CASE_SYMBOLS.UpdateOrderStatusUseCase, UpdateOrderStatusUseCase);
   }
 }
 
