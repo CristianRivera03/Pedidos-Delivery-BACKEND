@@ -1,4 +1,7 @@
 import { Product } from '@core/entities/product.entity';
+import { PaginatedResult } from '@core/repositories/pagination';
+
+export type { PaginatedResult };
 
 export interface ProductFilter {
   categoryId?: string;
@@ -8,13 +11,6 @@ export interface ProductFilter {
   limit?: number;
   /** Si es true, devuelve todos los registros sin paginación */
   all?: boolean;
-}
-
-export interface PaginatedResult<T> {
-  items: T[];
-  total: number;
-  page: number;
-  limit: number;
 }
 
 export interface ProductRepository {
