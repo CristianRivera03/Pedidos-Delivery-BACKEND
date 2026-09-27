@@ -209,6 +209,80 @@ const swaggerOptions = {
             isActive: { type: 'boolean' },
           },
         },
+        OrderStatus: {
+          type: 'string',
+          enum: ['CREADO', 'PAGADO', 'EN_PREPARACION', 'EN_CAMINO', 'ENTREGADO', 'CANCELADO'],
+        },
+        PaymentMethod: {
+          type: 'string',
+          enum: ['CARD', 'CASH'],
+        },
+        OrderItem: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+            productId: { type: 'string', format: 'uuid' },
+            productName: { type: 'string', example: 'Pupusa de Queso' },
+            unitPrice: { type: 'number', example: 1.25 },
+            quantity: { type: 'integer', example: 2 },
+            subtotal: { type: 'number', example: 2.5 },
+          },
+        },
+        Order: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', format: 'uuid', example: '550e8400-e29b-41d4-a716-446655440002' },
+            userId: { type: 'string', format: 'uuid' },
+            status: { $ref: '#/components/schemas/OrderStatus' },
+            paymentMethod: { $ref: '#/components/schemas/PaymentMethod' },
+            deliveryAddress: { type: 'string', example: 'Colonia Escalón, San Salvador' },
+            items: {
+              type: 'array',
+              items: { $ref: '#/components/schemas/OrderItem' },
+            },
+            subtotal: { type: 'number', example: 2.5 },
+            taxAmount: { type: 'number', example: 0.33 },
+            total: { type: 'number', example: 2.83 },
+            cashCollectedAt: {
+              type: 'string',
+              format: 'date-time',
+              nullable: true,
+              description: 'Solo se setea al entregar un pedido pagado en CASH',
+            },
+            createdAt: { type: 'string', example: '25/09/2026, 08:15:00 PM' },
+            updatedAt: { type: 'string', example: '25/09/2026, 08:15:00 PM' },
+          },
+        },
+        CreateOrderRequest: {
+          type: 'object',
+          required: ['paymentMethod', 'deliveryAddress', 'items'],
+          properties: {
+            paymentMethod: { $ref: '#/components/schemas/PaymentMethod' },
+            deliveryAddress: { type: 'string', minLength: 5, maxLength: 255, example: 'Colonia Escalón, San Salvador' },
+            items: {
+              type: 'array',
+              minItems: 1,
+              items: {
+                type: 'object',
+                required: ['productId', 'quantity'],
+                properties: {
+                  productId: { type: 'string', format: 'uuid' },
+                  quantity: { type: 'integer', minimum: 1, example: 2 },
+                },
+              },
+            },
+          },
+        },
+        UpdateOrderStatusRequest: {
+          type: 'object',
+          required: ['status'],
+          properties: {
+            status: {
+              type: 'string',
+              enum: ['EN_PREPARACION', 'EN_CAMINO', 'ENTREGADO', 'CANCELADO'],
+            },
+          },
+        },
       },
       responses: {
         Unauthorized: {
@@ -277,6 +351,10 @@ const swaggerOptions = {
       {
         name: 'Products',
         description: 'Gestión y catálogo de productos (menú)',
+      },
+      {
+        name: 'Orders',
+        description: 'Checkout, seguimiento y ciclo de vida de pedidos',
       },
     ],
   },

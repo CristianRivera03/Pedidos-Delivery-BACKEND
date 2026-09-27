@@ -3,6 +3,7 @@ export const REPOSITORY_SYMBOLS = {
   RefreshTokenRepository: Symbol.for('RefreshTokenRepository'),
   CategoryRepository: Symbol.for('CategoryRepository'),
   ProductRepository: Symbol.for('ProductRepository'),
+  OrderRepository: Symbol.for('OrderRepository'),
 } as const;
 
 export const SERVICE_SYMBOLS = {
@@ -11,6 +12,7 @@ export const SERVICE_SYMBOLS = {
   RefreshTokenService: Symbol.for('RefreshTokenService'),
   LoggerService: Symbol.for('LoggerService'),
   PrismaClient: Symbol.for('PrismaClient'),
+  PaymentService: Symbol.for('PaymentService'),
 } as const;
 
 export const USE_CASE_SYMBOLS = {
@@ -33,4 +35,8 @@ export const USE_CASE_SYMBOLS = {
   ListProductsUseCase: Symbol.for('ListProductsUseCase'),
   UpdateProductUseCase: Symbol.for('UpdateProductUseCase'),
   DeleteProductUseCase: Symbol.for('DeleteProductUseCase'),
+  CreateOrderUseCase: Symbol.for('CreateOrderUseCase'),
+  ListOrdersUseCase: Symbol.for('ListOrdersUseCase'),
+  GetOrderUseCase: Symbol.for('GetOrderUseCase'),
+  UpdateOrderStatusUseCase: Symbol.for('UpdateOrderStatusUseCase'),
 } as const;
