@@ -59,21 +59,28 @@ export class OrderPrismaRepository implements OrderRepository {
   public async createWithStockDeduction(order: Order): Promise<Order> {
     const created = await this.prisma.$transaction(async (tx) => {
       for (const item of order.getItems()) {
-        const product = await tx.product.findUnique({
-          where: { id: item.getProductId().getValue() },
-        });
+        const productId = item.getProductId().getValue();
 
-        if (!product || product.deletedAt || !product.isActive) {
-          throw new NotFoundError('Producto', item.getProductId().getValue());
-        }
-        if (product.stock < item.getQuantity()) {
-          throw new ConflictError(`Stock insuficiente para el producto '${product.name}'`);
-        }
-
-        await tx.product.update({
-          where: { id: product.id },
+        // Chequeo y descuento en un único UPDATE ... WHERE stock >= qty: Postgres
+        // bloquea la fila y reevalúa la condición si otra transacción la modificó,
+        // así dos checkouts concurrentes no pueden vender el mismo stock.
+        const { count } = await tx.product.updateMany({
+          where: {
+            id: productId,
+            isActive: true,
+            deletedAt: null,
+            stock: { gte: item.getQuantity() },
+          },
           data: { stock: { decrement: item.getQuantity() } },
         });
+
+        if (count === 0) {
+          const product = await tx.product.findUnique({ where: { id: productId } });
+          if (!product || product.deletedAt || !product.isActive) {
+            throw new NotFoundError('Producto', productId);
+          }
+          throw new ConflictError(`Stock insuficiente para el producto '${product.name}'`);
+        }
       }
 
       return tx.order.create({
